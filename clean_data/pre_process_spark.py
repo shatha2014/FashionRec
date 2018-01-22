@@ -7,7 +7,7 @@ write comments and  captions to CSV or TSV files, one per user
 Example commands to run it:
 
 python pre_process_spark.py --input data --format tsv --p --output cleaned
-python pre_process_spark.py --input data --format tsv --output cleaned
+python pre_process_spark.py --input data --format tsv --output cleaned -d
 """
 
 import pyspark
@@ -48,33 +48,37 @@ def mapRow(row):
         tags = " ".join([x for x in row.tags])
     else:
         tags = ""
-    textComments = textComments.replace("\n"," ")
-    textComments = textComments.replace("\t"," ")
-    textComments = textComments.replace(","," ")
-    textCaptions = textCaptions.replace("\n"," ")
-    textCaptions = textCaptions.replace("\t"," ")
-    textCaptions = textCaptions.replace(","," ")
-    tags = tags.replace("\n"," ")
-    tags = tags.replace("\t"," ")
-    tags = tags.replace(","," ")
-    return pyspark.sql.Row(comments=textComments, caption=textCaptions, tags=tags)
+    textComments = textComments.replace("\n", " ")
+    textComments = textComments.replace("\t", " ")
+    textComments = textComments.replace(",", " ")
+    textCaptions = textCaptions.replace("\n", " ")
+    textCaptions = textCaptions.replace("\t", " ")
+    textCaptions = textCaptions.replace(",", " ")
+    tags = tags.replace("\n", " ")
+    tags = tags.replace("\t", " ")
+    tags = tags.replace(",", " ")
+    id = row.urls[0]
+    return pyspark.sql.Row(comments=textComments, caption=textCaptions, tags=tags, id=id)
 
 
 def parse_args():
     """Parses the commandline arguments with argparse"""
     parser = argparse.ArgumentParser(description='Parse flags to configure the json parsing')
-    parser.add_argument("-f", "--format", help="output format: (csv|tsv)", choices=["csv", "tsv"], default="tsv")
+    parser.add_argument("-f", "--format", help="output format: (csv|tsv|json)", choices=["csv", "tsv", "json"],
+                        default="tsv")
     parser.add_argument("-p", "--parallelized", help="save output in parallelized or single file format",
                         action="store_true")
     parser.add_argument("-i", "--input", help="folder where input documents are", default="data")
     parser.add_argument("-o", "--output", help="folder where output documents are", default="cleaned")
+    parser.add_argument("-d", "--documentformat", help="combine all features into a single text per post",
+                        action="store_true")
     args = parser.parse_args()
     return args
 
 
 def writeToFile(rdd, parallelized, output, user, format):
     """Writes the processed RDD to output file"""
-    fileEnd = ".tsv" if format == "tsv" else ".csv"
+    fileEnd = "." + format
     output_path = output + "/" + user + "/" + user + fileEnd
     if parallelized:
         rdd.saveAsTextFile(output_path)
@@ -82,18 +86,40 @@ def writeToFile(rdd, parallelized, output, user, format):
         arr = np.array(rdd.collect())
         if not os.path.exists(os.path.dirname(output_path)):
             os.makedirs(os.path.dirname(output_path))
-
         with open(output_path, 'w+') as tsvfile:
             for row in arr:
-                tsvfile.write(row + "\n")
+                if format == "json":
+                    tsvfile.write(row.encode("utf-8", errors='ignore') + "\n")
+                else:
+                    tsvfile.write(row + "\n")
 
 
-def format(df, format):
+def format(df, format, features):
     """Formats the RDD pre-output"""
-    if format == "csv":
-        return df.rdd.map(lambda row: ','.join([x.encode("utf-8") for x in row]))
-    if format == "tsv":
-        return df.rdd.map(lambda row: '\t'.join([x.encode("utf-8") for x in row]))
+
+    def mapDocFormat(row):
+        if format == "csv":
+            return row.id.encode("utf-8", errors='ignore') + "," + " ".join(
+                [x.encode("utf-8", errors='ignore') for x in [row.comments, row.caption, row.tags]])
+        if format == "tsv":
+            return row.id.encode("utf-8") + "\t" + " ".join(
+                [x.encode("utf-8", errors='ignore') for x in [row.comments, row.caption, row.tags]])
+        if format == "json":
+            return pyspark.sql.Row(doc=row.id.encode("utf-8", errors='ignore'), text=''.join([x.encode("utf-8", errors='ignore') for x in row]))
+
+    if features:
+        df = df.rdd.map(mapDocFormat)
+        if format == "json":
+            return df.toDF().toJSON()
+        else:
+            return df
+    else:
+        if format == "csv":
+            return df.rdd.map(lambda row: ','.join([x.encode("utf-8", errors='ignore') for x in [row.id, row.comments, row.caption, row.tags]]))
+        if format == "tsv":
+            return df.rdd.map(lambda row: '\t'.join([x.encode("utf-8", errors='ignore') for x in [row.id, row.comments, row.caption, row.tags]]))
+        if format == "json":
+            return df.toJSON()
 
 
 def select(df):
@@ -101,11 +127,13 @@ def select(df):
     commentsCols = ["comments"]
     captionCols = ["edge_media_to_caption", "caption"]
     tagsCols = ["tags"]
+    idCol = "id"
+    urlsCol = "urls"
     commentCol = filter(lambda commentCol: commentCol in df.columns, commentsCols)[0]
     captionCol = filter(lambda captionCol: captionCol in df.columns, captionCols)[0]
     tagCol = filter(lambda tagCol: tagCol in df.columns, tagsCols)[0]
-    df = df.select([commentCol, captionCol, tagCol])
-    df = df.selectExpr(commentCol + " as comments", captionCol + " as caption", tagCol + " as tags")
+    df = df.select([commentCol, captionCol, tagCol, idCol, urlsCol])
+    df = df.selectExpr(commentCol + " as comments", captionCol + " as caption", tagCol + " as tags", idCol + " as id", urlsCol + " as urls")
     return df
 
 
@@ -115,7 +143,7 @@ def parseUser(user, args, sql):
     df = parse_raw(sql, args.input, user)
     df = select(df)
     df = df.rdd.map(lambda x: mapRow(x)).toDF()
-    df = format(df, args.format)
+    df = format(df, args.format, args.documentformat)
     writeToFile(df, args.parallelized, args.output, user, args.format)
 
 
