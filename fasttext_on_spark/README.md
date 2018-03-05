@@ -57,9 +57,10 @@ $SPARK_HOME/bin/spark-submit \
 
 See results in `./eval/benchmarks.csv`
 See commands that were used for benchmarks to reproduce: `./eval/commands.txt`
-See dataset in `./data/`
 
-The dataset were scraped from English wikipedia 2018-03-01 using the scripts provided at 
+Get the test dataset [here](https://www.dropbox.com/s/97f1y6ew2mvwhiv/clean_wiki.txt.tar.gz?dl=0).
+
+The dataset were scraped from English wikipedia 2018-03-01 using the scripts provided at
 [The FastText repo](https://github.com/facebookresearch/fastText)
 
 ![Training Time](./images/cluster_trainingtime.png "Training time")
