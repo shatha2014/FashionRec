@@ -2,7 +2,7 @@
 
 FastTextOnSpark brings the FastText algorithm for training word embeddings to Spark clusters. It allows you to utilize clusters for training FastText word embeddings, as compared to the original C++ implementation that is bounded to a single machine.
 
-Currently only supports Skip-gram and hierarhical softmax.
+Currently only supports the skip-gram model and hierarchical softmax output layer.
 
 ## How to run
 
@@ -55,7 +55,22 @@ $SPARK_HOME/bin/spark-submit \
 
 ## Benchmarks
 
-TBD
+See results in `./eval/benchmarks.csv`
+See commands that were used for benchmarks to reproduce: `./eval/commands.txt`
+See dataset in `./data/`
+
+The dataset were scraped from English wikipedia 2018-03-01 using the scripts provided at 
+[The FastText repo](https://github.com/facebookresearch/fastText)
+
+![Training Time](./images/cluster_trainingtime.png "Training time")
+![Accuracy](./images/cluster_accuracy.png "Accuracy")
+
+## Features to Implement
+
+- CBOW model
+- Negative sampling
+- Regular softmax
+- Cache LOG computations
 
 ## Author
 

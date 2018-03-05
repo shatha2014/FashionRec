@@ -1,0 +1,32 @@
+## Submitted to cluster config with 1 Executor, 8 cores
+
+--input "hdfs:///Projects/FastTextOnSpark/Corpora/clean_wiki.txt" --output "hdfs:///Projects/FastTextOnSpark/Logs/FastTextOnSpark" --cluster --partitions 16 --iterations 15 --saveparallel --dim 300 --windowsize 8 --algorithm "fasttext" --minn 3 --maxn 6 --norm --mincount 5 --lr 0.025
+
+## Submitted to cluster config with 2 Executor, 16 cores
+
+--input "hdfs:///Projects/FastTextOnSpark/Corpora/clean_wiki.txt" --output "hdfs:///Projects/FastTextOnSpark/Logs/FastTextOnSpark" --cluster --partitions 32 --iterations 15 --saveparallel --dim 300 --windowsize 8 --algorithm "fasttext" --minn 3 --maxn 6 --norm --mincount 5 --lr 0.025
+
+## Submitted to cluster config with 4 Executor, 32 cores
+
+--input "hdfs:///Projects/FastTextOnSpark/Corpora/clean_wiki.txt" --output "hdfs:///Projects/FastTextOnSpark/Logs/FastTextOnSpark" --cluster --partitions 64 --iterations 15 --saveparallel --dim 300 --windowsize 8 --algorithm "fasttext" --minn 3 --maxn 6 --norm --mincount 5 --lr 0.025
+
+## Submitted to cluster config with 6 Executor, 48 cores
+
+--input "hdfs:///Projects/FastTextOnSpark/Corpora/clean_wiki.txt" --output "hdfs:///Projects/FastTextOnSpark/Logs/FastTextOnSpark" --cluster --partitions 96 --iterations 15 --saveparallel --dim 300 --windowsize 8 --algorithm "fasttext" --minn 3 --maxn 6 --norm --mincount 5 --lr 0.025
+
+## Submitted to cluster config with 8 Executor, 64 cores
+
+--input "hdfs:///Projects/FastTextOnSpark/Corpora/clean_wiki.txt" --output "hdfs:///Projects/FastTextOnSpark/Logs/FastTextOnSpark" --cluster --partitions 128 --iterations 15 --saveparallel --dim 300 --windowsize 8 --algorithm "fasttext" --minn 3 --maxn 6 --norm --mincount 5 --lr 0.025
+
+## Submitted to cluster config with 10 Executor, 80 cores
+
+--input "hdfs:///Projects/FastTextOnSpark/Corpora/clean_wiki.txt" --output "hdfs:///Projects/FastTextOnSpark/Logs/FastTextOnSpark" --cluster --partitions 160 --iterations 15 --saveparallel --dim 300 --windowsize 8 --algorithm "fasttext" --minn 3 --maxn 6 --norm --mincount 5 --lr 0.025
+Configuration parameters
+
+## Submitted to local computer with 8 cores
+
+./fasttext skipgram -input clean_wiki.txt -output wikimodel -minCount 5 -minn 3 -maxn 6 -dim 300 -epoch 15 -thread 8 -loss hs -lr 0.025 -ws 8
+
+## Submitted to local computer with 8 cores
+
+./fasttext skipgram -input clean_wiki.txt -output wikimodel -minCount 5 -minn 3 -maxn 6 -dim 300 -epoch 15 -thread 8 -loss hs -lr 0.025 -ws 8
