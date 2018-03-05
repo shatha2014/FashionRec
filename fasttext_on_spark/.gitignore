@@ -22,6 +22,4 @@ project/plugins/project/
 
 
 *.ipynb_checkpoints
-
-#data
-data/
+data/*
