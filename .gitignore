@@ -1,6 +1,3 @@
-*.json
-texts
-*.csv
 *.class
 *.log
 
@@ -43,13 +40,4 @@ target/
 *spark.log
 */__pycache__/*
 */spark-warehouse/*
-
-**/**.csv
-**/**.csv
-**/**.json
-**/**.json
-**/results/**
-**/fasttext/**
-**/domain_data/**
 **/spark-warehouse
-**/texts
