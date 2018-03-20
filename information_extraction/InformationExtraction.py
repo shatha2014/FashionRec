@@ -28,21 +28,12 @@ from google.cloud.vision import types
 
 class InformationExtractor(object):
     """ Module with functions for information Extraction """
-
-    CAPTION_FACTOR = 2
-    COMMENTS_FACTOR = 1
-    USERTAG_FACTOR = 3
-    HASHTAG_FACTOR = 3
     wordnet_lemmatizer = WordNetLemmatizer()
-    api_key = open('/media/limmen/HDD/Dropbox/wordvec/ie/.api_key').read()
+
+    #External service URLs
     google_service_url = 'https://kgsearch.googleapis.com/v1/entities:search'
     probase_service_url = "https://concept.research.microsoft.com/api/Concept/ScoreByProb"
-
     #DD constants
-    model_clothing = '/media/limmen/HDD/workspace/python/fashion_free/clothing'
-    model_bags = '/media/limmen/HDD/workspace/python/fashion_free/bags'
-    model_footwear = '/media/limmen/HDD/workspace/python/fashion_free/footwear'
-    model_fabric = '/media/limmen/HDD/workspace/python/fashion_free/fabric'
     height = width = 224
     nclasses_clothing = 304
     nclasses_bags = 37
@@ -50,35 +41,33 @@ class InformationExtractor(object):
     nclasses_fabric= 233
 
     #setting up DD client
-    host = '127.0.0.1'
-    sname_clothing = 'clothing'
-    sname_bags = "bags"
-    sname_footwear = "footwear"
-    sname_fabric = "fabric"
-    description_clothing = 'clothing classification'
-    description_bags = 'bags classification'
-    description_footwear = 'footwear classification'
-    description_fabric = 'fabric classification'
     mllib = 'caffe'
-    dd = DD(host, port=7070)
 
-    def __init__(self, word_vectors, companies, styles, materials, items,
-                 brands_keywords_google, materials_keywords_google,
-                 probase_brands,
-                 probase_materials, colors, patterns, hierarchy):
-        #self.startup_deep_detect()
+    def __init__(self, word_vectors, companies, styles, materials, items, probase_brands,
+                 probase_materials, patterns, top_category_items, deep_detectStartup, confFilePath, tfidf):
+        self.conf = json.load(open(confFilePath))
+        self.tfidf = tfidf
+        self.api_key = self.conf["google_api_key_path"]
+        self.deep_detect_models = self.conf["deep_detect_models"]
+        self.CAPTION_FACTOR = self.conf["caption_factor"]
+        self.COMMENTS_FACTOR = self.conf["comments_factor"]
+        self.USERTAG_FACTOR = self.conf["usertag_factor"]
+        self.HASHTAG_FACTOR = self.conf["hashtag_factor"]
+        if deep_detectStartup:
+            self.dd = DD(self.conf["deep_detect_host"], port=self.conf["deep_detect_port"])
+            self.startup_deep_detect()
         self.wordvec_model = gensim.models.KeyedVectors.load_word2vec_format(word_vectors, binary=False)
         self.companies = companies
         self.styles = styles
         self.materials = materials
         self.items = items
-        self.brands_keywords_google = brands_keywords_google
-        self.materials_keywords_google = materials_keywords_google
+        self.brands_keywords_google = []
+        self.materials_keywords_google = []
         self.probase_brands = probase_brands
         self.probase_materials = probase_materials
-        self.colors = colors
+        self.colors = []
         self.patterns = patterns
-        self.hieararchy=hierarchy
+        self.top_category_items=top_category_items
         self.lemmatize()
 
     def lemmatize(self):
@@ -87,7 +76,7 @@ class InformationExtractor(object):
         self.materials_lemmas = {self.wordnet_lemmatizer.lemmatize(material): material for material in self.materials}
         self.items_lemmas = {self.wordnet_lemmatizer.lemmatize(item): item for item in self.items}
 
-    def find_closest_semantic(self, caption, comments, tags, hashtags, segmented_hashtags, num, topic):
+    def find_closest_semantic(self, caption, comments, tags, hashtags, segmented_hashtags, num, topic, id):
         """ Finds num semantically closest candidates for a given topic"""
         topic = map(lambda x: x.decode('utf-8','ignore').encode("utf-8"), topic)
         freq_scores = {}
@@ -98,9 +87,9 @@ class InformationExtractor(object):
             for x in topic:
                 token2 = x.lower()
                 token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
-                similarity = self.token_similarity(token, token2, token2Lemma, self.CAPTION_FACTOR)
+                similarity = self.token_similarity(token, token2, token2Lemma, self.CAPTION_FACTOR, self.tfidf[id])
                 scores.append((x, similarity))
-            top = sorted(scores, reverse=True, key=lambda x: x[1])[:5]
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
             for x in top:
                 freq_scores[x[0]] = freq_scores[x[0]] + x[1]
         for token in comments:
@@ -108,9 +97,9 @@ class InformationExtractor(object):
             for x in topic:
                 token2 = x.lower()
                 token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
-                similarity = self.token_similarity(token, token2, token2Lemma, self.COMMENTS_FACTOR)
+                similarity = self.token_similarity(token, token2, token2Lemma, self.COMMENTS_FACTOR, self.tfidf[id])
                 scores.append((x, similarity))
-            top = sorted(scores, reverse=True, key=lambda x: x[1])[:5]
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
             for x in top:
                 freq_scores[x[0]] = freq_scores[x[0]] + x[1]
         for token in hashtags:
@@ -118,9 +107,9 @@ class InformationExtractor(object):
             for x in topic:
                 token2 = x.lower()
                 token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
-                similarity = self.token_similarity(token, token2, token2Lemma, self.HASHTAG_FACTOR)
+                similarity = self.token_similarity(token, token2, token2Lemma, self.HASHTAG_FACTOR, self.tfidf[id])
                 scores.append((x, similarity))
-            top = sorted(scores, reverse=True, key=lambda x: x[1])[:5]
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
             for x in top:
                 freq_scores[x[0]] = freq_scores[x[0]] + x[1]
         for token in segmented_hashtags:
@@ -128,9 +117,9 @@ class InformationExtractor(object):
             for x in topic:
                 token2 = x.lower()
                 token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
-                similarity = self.token_similarity(token, token2, token2Lemma, self.HASHTAG_FACTOR)
+                similarity = self.token_similarity(token, token2, token2Lemma, self.HASHTAG_FACTOR, self.tfidf[id])
                 scores.append((x, similarity))
-            top = sorted(scores, reverse=True, key=lambda x: x[1])[:5]
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
             for x in top:
                 freq_scores[x[0]] = freq_scores[x[0]] + x[1]
         for token in tags:
@@ -138,42 +127,110 @@ class InformationExtractor(object):
             for x in topic:
                 token2 = x.lower()
                 token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
-                similarity = self.token_similarity(token, token2, token2Lemma, self.USERTAG_FACTOR)
+                similarity = self.token_similarity(token, token2, token2Lemma, self.USERTAG_FACTOR, self.tfidf[id])
                 scores.append((x, similarity))
-            top = sorted(scores, reverse=True, key=lambda x: x[1])[:5]
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
             for x in top:
                 freq_scores[x[0]] = freq_scores[x[0]] + x[1]
         top = sorted([(k, v) for k, v in freq_scores.iteritems()], reverse=True, key=lambda x: x[1])[:num]
         return top
 
-    def token_similarity(self, token, token2, token2Lemma, factor):
-        tokenLemma = self.wordnet_lemmatizer.lemmatize(token)
+    def token_similarity(self, token, token2, token2Lemma, factor, tfidf):
+        """ Returns similarity between two tokens using cosine similarity between embeddings, edit distance and TFIDF weighting"""
         similarity = 0.0
+        if isinstance(token, str):
+            token = token.decode("utf-8", "ignore")
+        tokenLemma = self.wordnet_lemmatizer.lemmatize(token)
         if tokenLemma in self.wordvec_model.wv.vocab and token2Lemma in self.wordvec_model.wv.vocab:
             similarity = factor*math.pow(float(self.wordvec_model.wv.similarity(tokenLemma, token2Lemma)), 2)
         else:
             dist = edit_distance(token, token2)
-            similarity = float(1)/float(1 + math.pow(dist, 2))
+            similarity = float(1)/float(1 + math.pow(dist, 5))
+        tfidf_score = 0.0
+        if token in tfidf:
+            tfidf_score = tfidf[token]
+        if token.encode("utf-8") in tfidf:
+            tfidf_score = tfidf[token.encode("utf-8")]
+        tfidf_score = max(tfidf_score, 0.0001)
+        similarity = similarity*tfidf_score
+        if edit_distance(tokenLemma, token2Lemma) == 0:
+            similarity = similarity*10
+        similarity = similarity*tfidf_score
         return similarity
 
-    def find_closest_syntactic(self, tokens, num, topic):
-        """ Finds num syntactically closest candidates for a given topic"""
+    def find_closest_syntactic(self, caption, comments, tags, hashtags, segmented_hashtags, num, topic, id):
+        """ Finds num semantically closest candidates for a given topic"""
+        topic = map(lambda x: x.decode('utf-8','ignore').encode("utf-8"), topic)
         freq_scores = {}
         for x in topic:
             freq_scores[x] = 0.0
-        for token in tokens:
-            sim_scores = {}
+        for token in caption:
+            scores = []
             for x in topic:
-                tokens2 = x.lower().split(" ")
-                distance = 0.0
-                for token2 in tokens2:
-                    distance = distance + float(edit_distance(token, token2))/len(tokens2)
-                sim_scores[x] = distance
-            top_similar = sorted([(k, v) for k, v in sim_scores.iteritems()], reverse=False, key=lambda x: x[1])[:num]
-            for i, x in enumerate(top_similar):
-                freq_scores[x[0]] = freq_scores[x[0]] + 1/float(math.pow((x[1]+1),2))
+                token2 = x.lower()
+                token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
+                similarity = self.token_similarity_syntactic_only(token, token2, token2Lemma, self.CAPTION_FACTOR, self.tfidf[id])
+                scores.append((x, similarity))
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
+            for x in top:
+                freq_scores[x[0]] = freq_scores[x[0]] + x[1]
+        for token in comments:
+            scores = []
+            for x in topic:
+                token2 = x.lower()
+                token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
+                similarity = self.token_similarity_syntactic_only(token, token2, token2Lemma, self.COMMENTS_FACTOR, self.tfidf[id])
+                scores.append((x, similarity))
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
+            for x in top:
+                freq_scores[x[0]] = freq_scores[x[0]] + x[1]
+        for token in hashtags:
+            scores = []
+            for x in topic:
+                token2 = x.lower()
+                token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
+                similarity = self.token_similarity_syntactic_only(token, token2, token2Lemma, self.HASHTAG_FACTOR, self.tfidf[id])
+                scores.append((x, similarity))
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
+            for x in top:
+                freq_scores[x[0]] = freq_scores[x[0]] + x[1]
+        for token in segmented_hashtags:
+            scores = []
+            for x in topic:
+                token2 = x.lower()
+                token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
+                similarity = self.token_similarity_syntactic_only(token, token2, token2Lemma, self.HASHTAG_FACTOR, self.tfidf[id])
+                scores.append((x, similarity))
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
+            for x in top:
+                freq_scores[x[0]] = freq_scores[x[0]] + x[1]
+        for token in tags:
+            scores = []
+            for x in topic:
+                token2 = x.lower()
+                token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
+                similarity = self.token_similarity_syntactic_only(token, token2, token2Lemma, self.USERTAG_FACTOR, self.tfidf[id])
+                scores.append((x, similarity))
+            top = sorted(scores, reverse=True, key=lambda x: x[1])[:num]
+            for x in top:
+                freq_scores[x[0]] = freq_scores[x[0]] + x[1]
         top = sorted([(k, v) for k, v in freq_scores.iteritems()], reverse=True, key=lambda x: x[1])[:num]
         return top
+
+    def token_similarity_syntactic_only(self, token, token2, token2Lemma, factor, tfidf):
+        """ Returns similarity between two tokens using edit distance and TFIDF weighting"""
+        tokenLemma = self.wordnet_lemmatizer.lemmatize(token)
+        similarity = 0.0
+        dist = factor*edit_distance(tokenLemma, token2Lemma)
+        similarity = float(1)/float(1 + math.pow(dist, 2))
+        tfidf_score = 0.0
+        if token in tfidf:
+            tfidf_score = tfidf[token]
+        if token.encode("utf-8") in tfidf:
+            tfidf_score = tfidf[token.encode("utf-8")]
+        tfidf_score = max(tfidf_score, 0.0001)
+        similarity = similarity*tfidf_score
+        return similarity
 
 
     def lookup_google(self, params):
@@ -223,18 +280,18 @@ class InformationExtractor(object):
         keywords = filter(lambda x: x in result, self.probase_brands)
         keywords = map(lambda x: result[x], keywords)
         if len(keywords) > 0:
-            return max(keywords)
+            return 1 + max(keywords)
         else:
-            return 0.0
+            return 0.5
 
     def rank_probase_result_material(self, result):
         """Probase probability ranking [0,1]"""
         keywords = filter(lambda x: x in result, self.probase_materials)
         keywords = map(lambda x: result[x], keywords)
         if len(keywords) > 0:
-            return max(keywords)
+            return 1 + max(keywords)
         else:
-            return 0.0
+            return 0.5
 
     def lookup_probase(self, params):
         """Probase lookup"""
@@ -317,6 +374,7 @@ class InformationExtractor(object):
         return top
 
     def emoji_to_item(self, token):
+        """Classify item based on emojis"""
         if token == u"👕":
             return ["shirt", "top"]
         if token == u"👖":
@@ -343,7 +401,7 @@ class InformationExtractor(object):
 
     def map_candidates_to_ontology(self, candidates):
         """ Map candidates from external APIs to our classes"""
-        topic = map(lambda x: x.decode('utf-8','ignore').encode("utf-8"), self.hieararchy)
+        topic = map(lambda x: x.decode('utf-8','ignore').encode("utf-8"), self.top_category_items)
         freq_scores = {}
         for x in topic:
             parts = x.split(",")
@@ -473,41 +531,19 @@ class InformationExtractor(object):
     def startup_deep_detect(self):
         """ Startup services for deep detect classification """
         self.dd.set_return_format(self.dd.RETURN_PYTHON)
-
-        #creating clothing ML service
-        model = {'repository':self.model_clothing}
-        parameters_input = {'connector':'image','width':self.width,'height':self.height}
-        parameters_mllib = {'nclasses':self.nclasses_clothing}
-        parameters_output = {}
-        self.dd.put_service(self.sname_clothing,model,self.description_clothing,self.mllib,
-                       parameters_input,parameters_mllib,parameters_output)
-        #creating bags ML service
-        model = {'repository':self.model_bags}
-        parameters_input = {'connector':'image','width':self.width,'height':self.height}
-        parameters_mllib = {'nclasses':self.nclasses_bags}
-        parameters_output = {}
-        self.dd.put_service(self.sname_bags,model,self.description_bags,self.mllib,
-                       parameters_input,parameters_mllib,parameters_output)
-        #creating footwear ML service
-        model = {'repository':self.model_footwear}
-        parameters_input = {'connector':'image','width':self.width,'height':self.height}
-        parameters_mllib = {'nclasses':self.nclasses_footwear}
-        parameters_output = {}
-        self.dd.put_service(self.sname_footwear,model,self.description_footwear,self.mllib,
-                       parameters_input,parameters_mllib,parameters_output)
-        #creating fabric ML service
-        model = {'repository':self.model_fabric}
-        parameters_input = {'connector':'image','width':self.width,'height':self.height}
-        parameters_mllib = {'nclasses':self.nclasses_fabric}
-        parameters_output = {}
-        self.dd.put_service(self.sname_fabric,model,self.description_fabric,self.mllib,
-                       parameters_input,parameters_mllib,parameters_output)
+        for model in self.deep_detect_models:
+            m = {"repository": model["path"]}
+            parameters_input = {'connector':'image','width':self.width,'height':self.height}
+            parameters_mllib = {'nclasses':self.nclasses_clothing}
+            parameters_output = {}
+            self.dd.put_service(model["name"],model,model["description"],self.mllib,
+                                parameters_input,parameters_mllib,parameters_output)
 
     def deepomatic_lookup(self, link):
         """ Deepomatic API lookup """
         item_candidates = []
         try:
-            client = Client(529372386976, "--- secret key ---")
+            client = Client(529372386976, self.conf["deepomatic_api_key"])
             task = client.helper.get("/detect/fashion/?url=" + link)
             taskid = task[u"task_id"]
             i = 0
@@ -537,7 +573,7 @@ class InformationExtractor(object):
         """ Clarifai API lookup"""
         item_candidates = []
         try:
-            app = ClarifaiApp(api_key='"--- secret key ---"')
+            app = ClarifaiApp(api_key=self.conf["clarifai_api_key"])
             model = app.models.get('apparel')
             image = ClImage(url=link)
             res = model.predict([image])
@@ -556,9 +592,9 @@ class InformationExtractor(object):
             print("error in clarifai LF")
             return item_candidates
 
-    def find_closest_semantic_hieararchy(self, caption, comments, tags, hashtags):
-        """ Finds num semantically closest candidates for a given topic"""
-        topic = map(lambda x: x.decode('utf-8','ignore').encode("utf-8"), self.hieararchy)
+    def find_closest_semantic_hierarchy(self, caption, comments, tags, hashtags, topic, id, num):
+        """ Finds num semantically closest candidates for a given topic with multiple words per topic"""
+        topic = map(lambda x: x.decode('utf-8','ignore').encode("utf-8"), topic)
         freq_scores = {}
         for x in topic:
             parts = x.split(",")
@@ -574,7 +610,7 @@ class InformationExtractor(object):
                 for word in words:
                     token2 = word.lower()
                     token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
-                    similarity = self.token_similarity(token, token2, token2Lemma, self.CAPTION_FACTOR)
+                    similarity = self.token_similarity(token, token2, token2Lemma, self.CAPTION_FACTOR, self.tfidf[id])
                     scores.append(similarity)
                 acc_sim = acc_sim + max(scores)
                 freq_scores[label] = freq_scores[label] + acc_sim
@@ -588,7 +624,7 @@ class InformationExtractor(object):
                 for word in words:
                     token2 = word.lower()
                     token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
-                    similarity = self.token_similarity(token, token2, token2Lemma, self.COMMENTS_FACTOR)
+                    similarity = self.token_similarity(token, token2, token2Lemma, self.COMMENTS_FACTOR, self.tfidf[id])
                     scores.append(similarity)
                 acc_sim = acc_sim + max(scores)
                 freq_scores[label] = freq_scores[label] + acc_sim
@@ -602,7 +638,7 @@ class InformationExtractor(object):
                 for word in words:
                     token2 = word.lower()
                     token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
-                    similarity = self.token_similarity(token, token2, token2Lemma, self.HASHTAG_FACTOR)
+                    similarity = self.token_similarity(token, token2, token2Lemma, self.HASHTAG_FACTOR, self.tfidf[id])
                     scores.append(similarity)
                 acc_sim = acc_sim + max(scores)
                 freq_scores[label] = freq_scores[label] + acc_sim
@@ -616,9 +652,78 @@ class InformationExtractor(object):
                 for word in words:
                     token2 = word.lower()
                     token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
-                    similarity = self.token_similarity(token, token2, token2Lemma, self.USERTAG_FACTOR)
+                    similarity = self.token_similarity(token, token2, token2Lemma, self.USERTAG_FACTOR, self.tfidf[id])
                     scores.append(similarity)
                     acc_sim = acc_sim + similarity
                 acc_sim = acc_sim + max(scores)
                 freq_scores[label] = freq_scores[label] + acc_sim
-        return freq_scores
+        top = sorted([(k, v) for k, v in freq_scores.iteritems()], reverse=True, key=lambda x: x[1])[:num]
+        return top
+
+    def find_closest_syntactic_hierarchy(self, caption, comments, tags, hashtags,topic,id,num):
+        """ Finds num syntactically closest candidates for a given topic, with multiple words per topic"""
+        topic = map(lambda x: x.decode('utf-8','ignore').encode("utf-8"), topic)
+        freq_scores = {}
+        for x in topic:
+            parts = x.split(",")
+            label = parts[0]
+            freq_scores[label] = 0.0
+        for token in caption:
+            for x in topic:
+                parts = x.split(",")
+                label = parts[0]
+                words = parts[1].split(" ")
+                acc_sim = 0
+                scores = []
+                for word in words:
+                    token2 = word.lower()
+                    token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
+                    similarity = self.token_similarity_syntactic_only(token, token2, token2Lemma, self.CAPTION_FACTOR, self.tfidf[id])
+                    scores.append(similarity)
+                acc_sim = acc_sim + max(scores)
+                freq_scores[label] = freq_scores[label] + acc_sim
+        for token in comments:
+            for x in topic:
+                parts = x.split(",")
+                label = parts[0]
+                words = parts[1].split(" ")
+                acc_sim = 0
+                scores = []
+                for word in words:
+                    token2 = word.lower()
+                    token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
+                    similarity = self.token_similarity_syntactic_only(token, token2, token2Lemma, self.COMMENTS_FACTOR, self.tfidf[id])
+                    scores.append(similarity)
+                acc_sim = acc_sim + max(scores)
+                freq_scores[label] = freq_scores[label] + acc_sim
+        for token in hashtags:
+            for x in topic:
+                parts = x.split(",")
+                label = parts[0]
+                words = parts[1].split(" ")
+                acc_sim = 0
+                scores = []
+                for word in words:
+                    token2 = word.lower()
+                    token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
+                    similarity = self.token_similarity_syntactic_only(token, token2, token2Lemma, self.HASHTAG_FACTOR, self.tfidf[id])
+                    scores.append(similarity)
+                acc_sim = acc_sim + max(scores)
+                freq_scores[label] = freq_scores[label] + acc_sim
+        for token in tags:
+            for x in topic:
+                parts = x.split(",")
+                label = parts[0]
+                words = parts[1].split(" ")
+                acc_sim = 0
+                scores = []
+                for word in words:
+                    token2 = word.lower()
+                    token2Lemma = self.wordnet_lemmatizer.lemmatize(token2)
+                    similarity = self.token_similarity_syntactic_only(token, token2, token2Lemma, self.USERTAG_FACTOR, self.tfidf[id])
+                    scores.append(similarity)
+                    acc_sim = acc_sim + similarity
+                acc_sim = acc_sim + max(scores)
+                freq_scores[label] = freq_scores[label] + acc_sim
+        top = sorted([(k, v) for k, v in freq_scores.iteritems()], reverse=True, key=lambda x: x[1])[:num]
+        return top

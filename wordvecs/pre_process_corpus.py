@@ -1,25 +1,27 @@
+#!/usr/bin/env python
 # coding=utf-8
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import TweetTokenizer
 from collections import Counter
+import argparse
 
 """
 Script for preprocessing corpora for training word vectors.
 Cleans the text, removes un-frequent words, merges corpus to single file, computes some stats etc.  
 """
 
-IG_CORPUS = "data/corpora/ig/ig_corpus.txt"
-PDF_CORPUS = "data/corpora/pdf/pdf_corpus.txt"
-TWITTER_CORPUS = "data/corpora/twitter/tweets.txt"
-WIKI_CORPUS = "data/corpora/wiki/wiki_cleaned.txt"
-ZALANDO_CORPUS = "data/corpora/zalando/zalando_corpus.txt"
-FLICKR_CORPUS = "data/corpora/flickr/flickr_corpus.txt"
-MAGENTO_CORPUS = "data/corpora/magento/magento_corpus.txt"
-BLOG_CORPUS = "data/corpora/blog/blog_corpus.txt"
-CORPORA = [IG_CORPUS, PDF_CORPUS, TWITTER_CORPUS, WIKI_CORPUS, ZALANDO_CORPUS, FLICKR_CORPUS, MAGENTO_CORPUS, BLOG_CORPUS]
 tknzr = TweetTokenizer(strip_handles=True, reduce_len=True)
 wordnet_lemmatizer = WordNetLemmatizer()
+
+def parse_args():
+    """Parses the commandline arguments with argparse"""
+    parser = argparse.ArgumentParser(description='Parse flags to configure the json parsing')
+    parser.add_argument("-i", "--input", help="list of input corporas", nargs='+', default="data/corpora/1/1.txt data/corpora/2/2.txt", required=True)
+    parser.add_argument("-mc", "--mincount", help="minimum frequency count of words", default=5, required=True)
+    parser.add_argument("-o", "--output", help="output directory", default="data", required=True)
+    args = parser.parse_args()
+    return args
 
 def normalize_clean(corpusInput, corpusOutput):
     """remove stopwords, remove usertags, tokenize, lemmatize"""
@@ -47,11 +49,11 @@ def normalize_clean(corpusInput, corpusOutput):
     print stat
     return stat
 
-def append_corpora(output):
+def append_corpora(args, output):
     """Append corpora to single file"""
     count = 0
     with open(output, "w+") as corpusFile:
-        for file in CORPORA:
+        for file in args.input:
             print("appending corpus {0}".format(file))
             fileH = open(file, "r")
             text = fileH.read()
@@ -61,10 +63,10 @@ def append_corpora(output):
     print stat
     return stat
 
-def corpora_stats():
+def corpora_stats(args):
     """Compute stats for each corpus"""
     stats = []
-    for file in CORPORA:
+    for file in args.input:
         print("calculating stats for {0}".format(file))
         count = 0
         with open(file, 'r') as corpus:
@@ -77,7 +79,7 @@ def corpora_stats():
         print "\n".join(stats)
         statsFile.write("\n".join(stats))
 
-def removeUnFrequentWords(corpusInput, corpusOutput):
+def removeUnFrequentWords(corpusInput, corpusOutput, args):
     """Remove unfrequent words as they are useless for learning word vectors"""
     with open(corpusInput, "r") as corpusInputFile:
         with open(corpusOutput, "w+") as corpusOutputFile:
@@ -86,7 +88,7 @@ def removeUnFrequentWords(corpusInput, corpusOutput):
             totalCount = len(words)
             totalUniqueCount = len(set(words))
             cnt = Counter(words)
-            words = filter(lambda x: cnt[x] >= 5, words)
+            words = filter(lambda x: cnt[x] >= int(args.mincount), words)
             totalFreqCount = len(words)
             totalUniqueFreqCount = len(set(words))
             corpusOutputFile.write(" ".join(words))
@@ -96,14 +98,15 @@ def removeUnFrequentWords(corpusInput, corpusOutput):
 
 def main():
     """Program entry-point, orchestrates the pipeline"""
+    args = parse_args()
     print "calculating corpora stats"
-    corpora_stats()
+    corpora_stats(args)
     print "appending corpora to single corpus file"
-    append_stat = append_corpora("data/raw_corpus.txt")
+    append_stat = append_corpora(args, "data/raw_corpus.txt")
     print "normalize text"
     after_clean_stat = normalize_clean("data/raw_corpus.txt", "data/clean1_corpus.txt")
     print "remove unfrequent words"
-    after_freq_filter_stat = removeUnFrequentWords("data/clean1_corpus.txt", "data/clean2_corpus.txt")
+    after_freq_filter_stat = removeUnFrequentWords("data/clean1_corpus.txt", "data/clean2_corpus.txt", args)
     stats = "\n".join([append_stat, after_clean_stat, after_freq_filter_stat])
     with open("data/corpus_stats.txt", 'w+') as statsFile:
         statsFile.write(stats)

@@ -1,0 +1,9 @@
+[
+  "/home/limmen/Dropbox/wordvec/pretrained/fasttext_wiki_300d_en.vec",
+  "/home/limmen/Dropbox/wordvec/pretrained/glove_wiki_6B_300d.vec",
+  "/home/limmen/Dropbox/wordvec/pretrained/googlenews_negative_300d_100B.bin",
+  "/home/limmen/Dropbox/wordvec/pretrained/twitter_glove_27B_200d.vec",
+  "/home/limmen/workspace/python/fashionrec/wordvecs/trained/word2vec_fashion_dim300_c13_0.vec",
+  "/home/limmen/workspace/python/fashionrec/wordvecs/trained/fasttext_fashion_dim300_c3_skipgram.vec",
+  "/home/limmen/workspace/python/fashionrec/wordvecs/trained/glove_fashion_dim300_c12_-.vec"
+]

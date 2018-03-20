@@ -1,0 +1,34 @@
+{
+  "caption_factor":2,
+  "comments_factor":1,
+  "usertag_factor":1,
+  "hashtag_factor":3,
+  "google_api_key_path": "",
+  "deep_detect_models": [
+    {
+      "name":"clothing",
+      "path": "",
+      "description":""
+    },
+    {
+      "name":"bags",
+      "path":"",
+      "description":""
+    },
+    {
+      "name":"footwear",
+      "path":"",
+      "description":""
+    },
+    {
+      "name":"fabric",
+      "path":"",
+      "description":""
+    }
+  ],
+  "deep_detect_host": "",
+  "deep_detect_port": "",
+  "deepomatic_api_key": "",
+  "clarifai_api_key":""
+
+}

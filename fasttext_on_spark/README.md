@@ -73,6 +73,46 @@ The dataset were scraped from English wikipedia 2018-03-01 using the scripts pro
 - Regular softmax
 - Cache LOG computations
 
+## Original FastText References
+
+Cite [1](#enriching-word-vectors-with-subword-information) if using the FastText algorithm for learning word representations.
+
+Cite [2](TODO) If using FastTextOnSpark for distributed training with FastText
+
+### Enriching Word Vectors with Subword Information
+
+[1] P. Bojanowski\*, E. Grave\*, A. Joulin, T. Mikolov, [*Enriching Word Vectors with Subword Information*](https://arxiv.org/abs/1607.04606)
+
+```
+@article{bojanowski2016enriching,
+  title={Enriching Word Vectors with Subword Information},
+  author={Bojanowski, Piotr and Grave, Edouard and Joulin, Armand and Mikolov, Tomas},
+  journal={arXiv preprint arXiv:1607.04606},
+  year={2016}
+}
+```
+
+### FastTextOnSpark
+
+If using any of the code in this repsitory in your work or research, please cite: [2](TODO)
+
+In this publication you can also find an evaluation of the system.
+
+[2] TODO, [*TODO*](link)
+
+```
+@article{joulin2016bag,
+  title={TODO},
+  author={TODO},
+  journal={TODO},
+  year={TODO}
+}
+```
+
+## License
+
+BSD 2-clause, see [LICENSE](./LICENSE)
+
 ## Author
 
-Kim Hammar, kimham@kth.se
+Kim Hammar, [kimham@kth.se](mailto:kimham@kth.se)

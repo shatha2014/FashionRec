@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # coding=utf-8
 from __future__ import absolute_import
 from __future__ import division
@@ -363,111 +364,11 @@ def append_to_file(fileName, text):
     with open(fileName, 'a') as file:
         file.write(text)
 
-
-def most_similar():
-    """ Exploration of word vectors"""
-    model = gensim.models.KeyedVectors.load_word2vec_format("trained/glove_fashion_dim300_c3_-.vec", binary=False)
-    print("dress:\n{0}".format(model.most_similar(u'dress')))
-    print("jacket:\n{0}".format(model.most_similar(u'jacket')))
-    print("shoe:\n{0}".format(model.most_similar(u'shoe')))
-    print("jean:\n{0}".format(model.most_similar(u'jean')))
-    print("shirt:\n{0}".format(model.most_similar(u'shirt')))
-    print("blouse:\n{0}".format(model.most_similar(u'blouse')))
-    print("hat:\n{0}".format(model.most_similar(u'hat')))
-    print("chic:\n{0}".format(model.most_similar(u'chic')))
-    print("vintage:\n{0}".format(model.most_similar(u'vintage')))
-    print("bohemian:\n{0}".format(model.most_similar(u'bohemian')))
-    print("sexy:\n{0}".format(model.most_similar(u'sexy')))
-    print("casual:\n{0}".format(model.most_similar(u'casual')))
-    print("punk:\n{0}".format(model.most_similar(u'punk')))
-    print("hipster:\n{0}".format(model.most_similar(u'hipster')))
-    print("exotic:\n{0}".format(model.most_similar(u'exotic')))
-    print("trendy:\n{0}".format(model.most_similar(u'trendy')))
-    print("bag:\n{0}".format(model.most_similar(u'bag')))
-    print("glasses:\n{0}".format(model.most_similar(u'glasses')))
-    print("trouser:\n{0}".format(model.most_similar(u'trouser')))
-    print("tunic:\n{0}".format(model.most_similar(u'tunic')))
-    print("denim:\n{0}".format(model.most_similar(u'denim')))
-    print("leather:\n{0}".format(model.most_similar(u'leather')))
-    print("cashmere:\n{0}".format(model.most_similar(u'cashmere')))
-    print("gucci:\n{0}".format(model.most_similar(u'gucci')))
-    print("prada:\n{0}".format(model.most_similar(u'prada')))
-    print("nike:\n{0}".format(model.most_similar(u'nike')))
-    print("elegant:\n{0}".format(model.most_similar(u'elegant')))
-    print("cowgirl:\n{0}".format(model.most_similar(u'cowgirl')))
-    print("business:\n{0}".format(model.most_similar(u'business')))
-    print("kimono:\n{0}".format(model.most_similar(u'kimono')))
-    print("zalando:\n{0}".format(model.most_similar(u'zalando')))
-    print("scarf:\n{0}".format(model.most_similar(u'scarf')))
-    print("collar:\n{0}".format(model.most_similar(u'collar')))
-    print("hoodie:\n{0}".format(model.most_similar(u'hoodie', topn=20)))
-    print("trench:\n{0}".format(model.most_similar(u'trench')))
-    print("collection:\n{0}".format(model.most_similar(u'collection')))
-    print("garment:\n{0}".format(model.most_similar(u'garment')))
-    print("#ootd:\n{0}".format(model.most_similar(u'#ootd')))
-    print("#gucci:\n{0}".format(model.most_similar(u'#gucci', topn=50)))
-    print("#fashion:\n{0}".format(model.most_similar(u'#fashion')))
-    print("loungewear:\n{0}".format(model.most_similar(u'loungewear', topn=20)))
-    print("buttonhole:\n{0}".format(model.most_similar(u'buttonhole')))
-    print("vogue:\n{0}".format(model.most_similar(u'vogue', topn=20)))
-    print("gaiter:\n{0}".format(model.most_similar(u'gaiter')))
-    print("bun:\n{0}".format(model.most_similar(u'bun')))
-    print("#instafashion:\n{0}".format(model.most_similar(u'#instafashion')))
-    print("#holidaystyle:\n{0}".format(model.most_similar(u'#holidaystyle')))
-    print("#gapstyle:\n{0}".format(model.most_similar(u'#gapstyle', topn=20)))
-    print("#chic:\n{0}".format(model.most_similar(u'#chic')))
-    print("#falltrends:\n{0}".format(model.most_similar(u'#falltrends', topn=20)))
-    print("fall:\n{0}".format(model.most_similar(u'fall')))
-    print("#fallstyle:\n{0}".format(model.most_similar(u'#fallstyle', topn=20)))
-    print("#summertrends:\n{0}".format(model.most_similar(u'#summertrends')))
-    print("summer:\n{0}".format(model.most_similar(u'summer')))
-    print("#summerstyle:\n{0}".format(model.most_similar(u'#summerstyle')))
-    print("#summerfashion:\n{0}".format(model.most_similar(u'#summerfashion')))
-    print("#shoestagram:\n{0}".format(model.most_similar(u'#shoestagram', topn=20)))
-    print("#gucci:\n{0}".format(model.most_similar(u'#gucci', topn=20)))
-    print("#springstyle:\n{0}".format(model.most_similar(u'#springstyle')))
-    print("#springfashion:\n{0}".format(model.most_similar(u'#springfashion')))
-    print("#winterfashion:\n{0}".format(model.most_similar(u'#winterfashion')))
-    print("#bohemian:\n{0}".format(model.most_similar(u'#bohemian', topn=20)))
-    print("#swag:\n{0}".format(model.most_similar(u'#swag', topn=20)))
-    print("#muslimwear:\n{0}".format(model.most_similar(u'#muslimwear', topn=20)))
-    print("#beyonce:\n{0}".format(model.most_similar(u'#beyonce', topn=20)))
-    print("#gymwear:\n{0}".format(model.most_similar(u'#gymwear', topn=20)))
-    print("#hijabfashion:\n{0}".format(model.most_similar(u'#hijabfashion', topn=20)))
-    print("#vintagestyle:\n{0}".format(model.most_similar(u'#vintagestyle', topn=50)))
-    print("#indianfashion:\n{0}".format(model.most_similar(u'#indianfashion', topn=50)))
-    print("#bohemian:\n{0}".format(model.most_similar(u'#bohemian', topn=50)))
-    print("#60s:\n{0}".format(model.most_similar(u'#60s', topn=20)))
-    print("#70s:\n{0}".format(model.most_similar(u'#70s', topn=20)))
-    print("#80s:\n{0}".format(model.most_similar(u'#80s', topn=20)))
-    print("#90s:\n{0}".format(model.most_similar(u'#90s', topn=20)))
-    print("#beachstyle:\n{0}".format(model.most_similar(u'#beachstyle', topn=20)))
-    print("#australianfashion:\n{0}".format(model.most_similar(u'#australianfashion', topn=20)))
-    print("#americanfashion:\n{0}".format(model.most_similar(u'#americanfashion', topn=20)))
-    print("#berlinfashion:\n{0}".format(model.most_similar(u'#berlinfashion', topn=20)))
-    print("#19thcenturyfashion:\n{0}".format(model.most_similar(u'#19thcenturyfashion', topn=20)))
-    print("#americanstreetstyle:\n{0}".format(model.most_similar(u'#americanstreetstyle', topn=20)))
-    print("#citystyle:\n{0}".format(model.most_similar(u'#citystyle', topn=20)))
-    print("#streetstyle:\n{0}".format(model.most_similar(u'#streetstyle', topn=20)))
-    print("#torontostreetstyle:\n{0}".format(model.most_similar(u'#torontostreetstyle', topn=20)))
-    print("#poolstyle:\n{0}".format(model.most_similar(u'#poolstyle', topn=20)))
-    print("#budgetstyle:\n{0}".format(model.most_similar(u'#budgetstyle', topn=40)))
-    print("#poolstyle:\n{0}".format(model.most_similar(u'#poolstyle', topn=40)))
-    print("#winterstyle:\n{0}".format(model.most_similar(u'#winterstyle', topn=40)))
-    print("#torontostreetstyle:\n{0}".format(model.most_similar(u'#torontostreetstyle', topn=20)))
-    print("#70sretrofashion:\n{0}".format(model.most_similar(u'#70sretrofashion', topn=20)))
-    print("#luxurylifestyle:\n{0}".format(model.most_similar(u'#luxurylifestyle', topn=20)))
-    print("#expensive:\n{0}".format(model.most_similar(u'#expensive', topn=20)))
-    print("#mensfashion:\n{0}".format(model.most_similar(u'#mensfashion', topn=40)))
-    print("#womensfashion:\n{0}".format(model.most_similar(u'#womensfashion', topn=40)))
-
-
 def my_vector_getter(words, word, my_coordinates):
     """function that returns word vector as numpy array"""
     index = words.index(word)
     word_array = my_coordinates[index].ravel()
     return (word_array)
-
 
 def norm_word(word):
     """ Computes normalized form of word for Retrofitting"""
@@ -477,7 +378,6 @@ def norm_word(word):
         return '---punc---'
     else:
         return word.lower()
-
 
 def read_lexicon(filename):
     """ Reads lexicon file"""
@@ -548,7 +448,6 @@ def retrofitting():
 
 def test():
     """ Evaluate All """
-    """
     test_word2vec_google_news_300()
     test_fasttext_wiki_300()
     test_glove_wiki_300()
@@ -628,30 +527,22 @@ def test():
     test_fashion(300, 12, "0", "word2vec", False)
     test_fashion(300, 13, "0", "word2vec", False)
     test_fashion(300, 14, "0", "word2vec", False)
-    """
-    # test_fashion(50, 2, "skipgram", "fasttext", False)
-    # test_fashion(100, 2, "skipgram", "fasttext", False)
-    # test_fashion(150, 2, "skipgram", "fasttext", False)
-    # test_fashion(200, 2, "skipgram", "fasttext", False)
-    # test_fashion(250, 2, "skipgram", "fasttext", False)
-    # test_fashion(350, 2, "skipgram", "fasttext", False)
-    # test_fashion(400, 2, "skipgram", "fasttext", False)
-    # test_fashion(450, 2, "skipgram", "fasttext", False)
-    # test_fashion(500, 2, "skipgram", "fasttext", False)
-    # test_fashion(550, 2, "skipgram", "fasttext", False)
-    # test_fashion(600, 2, "skipgram", "fasttext", False)
-    #
-    test_word2vec_google_news_300()
-    # test_fashion(550, 2, "skipgram", "fasttext", False)
-    # test_fasttext_wiki_300()
 
-
-# test_fashion_retrofitted()
+    test_fashion(50, 2, "skipgram", "fasttext", False)
+    test_fashion(100, 2, "skipgram", "fasttext", False)
+    test_fashion(150, 2, "skipgram", "fasttext", False)
+    test_fashion(200, 2, "skipgram", "fasttext", False)
+    test_fashion(250, 2, "skipgram", "fasttext", False)
+    test_fashion(350, 2, "skipgram", "fasttext", False)
+    test_fashion(400, 2, "skipgram", "fasttext", False)
+    test_fashion(450, 2, "skipgram", "fasttext", False)
+    test_fashion(500, 2, "skipgram", "fasttext", False)
+    test_fashion(550, 2, "skipgram", "fasttext", False)
+    test_fashion(600, 2, "skipgram", "fasttext", False)
 
 def train_all():
     """ Train All"""
 
-    """
     train_fasttext_fashionrec(300, 3, "skipgram", 15)
     train_word2vec_fashionrec(300, 3, 1, 15)
     train_glove_fashionrec(300, 3, 15)
@@ -897,31 +788,74 @@ def train_all():
     train_fasttext_fashionrec(250, 10, "cbow", 15)
     train_word2vec_fashionrec(250, 10, 0, 15)
     train_glove_fashionrec(250, 10, 15)
-    """
+
+    train_glove_fashionrec(50, 12, 15)
+    train_glove_fashionrec(100, 12, 15)
+    train_glove_fashionrec(150, 12, 15)
+    train_glove_fashionrec(200, 12, 15)
+    train_glove_fashionrec(250, 12, 15)
+    train_glove_fashionrec(300, 12, 15)
+    train_glove_fashionrec(350, 12, 15)
+    train_glove_fashionrec(400, 12, 15)
+    train_glove_fashionrec(450, 12, 15)
+    train_glove_fashionrec(500, 12, 15)
+    train_glove_fashionrec(550, 12, 15)
+    train_glove_fashionrec(600, 12, 15)
+    train_word2vec_fashionrec(50, 13, 0, 15)
+    train_word2vec_fashionrec(100, 13, 0, 15)
+    train_word2vec_fashionrec(150, 13, 0, 15)
+    train_word2vec_fashionrec(200, 13, 0, 15)
+    train_word2vec_fashionrec(250, 13, 0, 15)
+    train_word2vec_fashionrec(300, 13, 0, 15)
+    train_word2vec_fashionrec(350, 13, 0, 15)
+    train_word2vec_fashionrec(400, 13, 0, 15)
+    train_word2vec_fashionrec(450, 13, 0, 15)
+    train_word2vec_fashionrec(500, 13, 0, 15)
+    train_word2vec_fashionrec(550, 13, 0, 15)
+    train_word2vec_fashionrec(600, 13, 0, 15)
+
+    train_word2vec_fashionrec(50, 3, 1, 15)
+    train_word2vec_fashionrec(100, 3, 1, 15)
+    train_word2vec_fashionrec(150, 3, 1, 15)
+    train_word2vec_fashionrec(200, 3, 1, 15)
+    train_word2vec_fashionrec(250, 3, 1, 15)
+    train_word2vec_fashionrec(300, 3, 1, 15)
+    train_word2vec_fashionrec(350, 3, 1, 15)
+    train_word2vec_fashionrec(400, 3, 1, 15)
+    train_word2vec_fashionrec(450, 3, 1, 15)
+    train_word2vec_fashionrec(500, 3, 1, 15)
+    train_word2vec_fashionrec(550, 3, 1, 15)
+    train_word2vec_fashionrec(600, 3, 1, 15)
+
+    train_fasttext_fashionrec(50, 2, "skipgram", 15)
+    train_fasttext_fashionrec(100, 2, "skipgram", 15)
+    train_fasttext_fashionrec(150, 2, "skipgram", 15)
+    train_fasttext_fashionrec(200, 2, "skipgram", 15)
+    train_fasttext_fashionrec(250, 2, "skipgram", 15)
+    train_fasttext_fashionrec(350, 2, "skipgram", 15)
+    train_fasttext_fashionrec(400, 2, "skipgram", 15)
+    train_fasttext_fashionrec(450, 2, "skipgram", 15)
+    train_fasttext_fashionrec(500, 2, "skipgram", 15)
+    train_fasttext_fashionrec(550, 2, "skipgram", 15)
+    train_fasttext_fashionrec(600, 2, "skipgram", 15)
+    train_fasttext_fashionrec(300, 10, "cbow", 15)
+
+    train_fasttext_fashionrec(50, 11, "cbow", 15)
+    train_fasttext_fashionrec(100, 11, "cbow", 15)
+    train_fasttext_fashionrec(150, 11, "cbow", 15)
+    train_fasttext_fashionrec(200, 11, "cbow", 15)
+    train_fasttext_fashionrec(250, 11, "cbow", 15)
+    train_fasttext_fashionrec(350, 11, "cbow", 15)
+    train_fasttext_fashionrec(400, 11, "cbow", 15)
+    train_fasttext_fashionrec(450, 11, "cbow", 15)
+    train_fasttext_fashionrec(500, 11, "cbow", 15)
+    train_fasttext_fashionrec(550, 11, "cbow", 15)
+    train_fasttext_fashionrec(600, 11, "cbow", 15)
 
 
 def train():
     """ Train single"""
-    # train_fasttext_fashionrec(50, 2, "skipgram", 15)
-    # train_fasttext_fashionrec(100, 2, "skipgram", 15)
-    # train_fasttext_fashionrec(150, 2, "skipgram", 15)
-    # train_fasttext_fashionrec(200, 2, "skipgram", 15)
-    # train_fasttext_fashionrec(250, 2, "skipgram", 15)
-    # train_fasttext_fashionrec(350, 2, "skipgram", 15)
-    # train_fasttext_fashionrec(400, 2, "skipgram", 15)
-    # train_fasttext_fashionrec(450, 2, "skipgram", 15)
-    # train_fasttext_fashionrec(500, 2, "skipgram", 15)
-    # train_fasttext_fashionrec(550, 2, "skipgram", 15)
     train_fasttext_fashionrec(600, 2, "skipgram", 15)
-
-
-# def test_fashion(dim, context, train_model, algorithm, binary):
-def test_spark():
-    """ Test vectors trained on spark"""
-    vectorFile = "trained/spark_conv/spark3.vec"
-    name = "spark.vec"
-    model = gensim.models.KeyedVectors.load_word2vec_format(vectorFile, binary=False)
-    save_results(model, 300, 5, "skipgram", "word2vec", "74million_fashion", name)
 
 
 def main():
@@ -932,7 +866,6 @@ def main():
     # convert_gensim_to_word2vec_format("trained/word2vec_fashion_dim300_c13_0.vec")
     # convert_gensim_to_word2vec_format("trained/word2vec_fashion_dim300_c13_1.vec")
     # test()
-    test_spark()
     # retrofitting()
     # most_similar()
     # train_word2vec_fashionrec(300, 3, 1, 15)

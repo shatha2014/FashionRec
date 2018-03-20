@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # coding=utf-8
 from InformationExtraction import InformationExtractor
 import os
@@ -12,24 +13,86 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import TweetTokenizer
 from collections import Counter
 from wordsegment import load, segment
+import argparse
+from gensim.models import TfidfModel
+from gensim.corpora import Dictionary
 
 """
-A faster, distributed version of TextAnalysis.py
-
-Uses Spark for distribution. 
+Script for analyzing users, uses Preprocessor.py and InformationExtraction.py
+Uses Spark for distribution.
+Uses a plethora of external APIs as distant supervision, and uses local semantic clustering of text 
 """
 
+# Initialize schema, tokenizer, stopwords, and load word segmenter
 schema = (StructType().add('id', IntegerType(), True)
           .add('comments', StringType(), True)
           .add('caption', StringType(), True)
           .add('tags', DoubleType(), True))
-
 tknzr = TweetTokenizer(strip_handles=False, reduce_len=True)
 tknzr_strip_users = TweetTokenizer(strip_handles=True, reduce_len=True)
 wordnet_lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 stop_words.update(['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'])
 load()
+
+
+def clean_text(text, tokenizer):
+    """ Clean the text, lowercase, remove noise, lemmatize """
+    text = text.decode('utf-8', 'ignore').encode("utf-8")
+    list_of_words = [i.lower() for i in tokenizer.tokenize(text.decode("utf-8")) if
+                     i.lower() not in stop_words]  # remove stopwords & tokenize (preserve hashtags)
+    list_of_words = filter(lambda x: "pic.twitter" not in x and not "twitter.com" in x, list_of_words)
+    list_of_words = filter(lambda x: "http" not in x, list_of_words)
+    list_of_words = map(lambda x: wordnet_lemmatizer.lemmatize(x), list_of_words)  # lemmatize
+    list_of_words = map(lambda x: x.encode("utf-8"), list_of_words)
+    return list_of_words
+
+
+def create_tf_idf(corporaPath):
+    """
+    Compute the TF-IDF scores based on the entire corpus
+    """
+    docs = []
+    ids = []
+    with open(corporaPath, "r") as csvfile:
+        for line in csvfile:
+            line = line.replace("\n", " ")
+            parts = line.split(",")
+            if (len(parts) == 5):
+                id = parts[0]
+                url = parts[1]
+                comments = parts[2]
+                if comments is not None:
+                    comments = clean_text(comments, tknzr_strip_users)
+                else:
+                    comments = []
+                caption = parts[3]
+                if caption is not None:
+                    caption = clean_text(caption, tknzr_strip_users)
+                else:
+                    caption = []
+                tags = parts[4]
+                if tags is not None:
+                    tags = clean_text(tags, tknzr_strip_users)
+                else:
+                    tags = []
+            docs.append(comments + caption + tags)
+            ids.append(id)
+    idx_to_id = {}
+    for i, id in enumerate(ids):
+        idx_to_id[i] = id
+
+    dct = Dictionary(docs)
+    corpus = [dct.doc2bow(line) for line in docs]
+    model = TfidfModel(corpus)
+    tfidf_factors = {}
+    for i, doc in enumerate(corpus):
+        temp = {}
+        for word_id, value in model[doc]:
+            word = dct.get(word_id)
+            temp[word] = value
+        tfidf_factors[idx_to_id[i]] = temp
+    return tfidf_factors
 
 
 def filterOccurenceCount(iter):
@@ -52,35 +115,93 @@ def read_gazetter(file_path):
     return words
 
 
+def parse_args():
+    """Parses the commandline arguments with argparse"""
+    parser = argparse.ArgumentParser(description='Parse flags to configure the json parsing')
+    parser.add_argument("-i", "--input", help="folder where input documents are", default="data/sample_user.csv")
+    parser.add_argument("-c", "--conf", help="path to confFile", default="./conf/conf.json")
+    parser.add_argument("-im", "--imagepath", help="path to images, necessary if using google vision API", default="")
+    parser.add_argument("-o", "--output", help="folder where output documents are", default="output")
+    parser.add_argument("-g", "--google", help="flag whether to use google vision api",
+                        action="store_true")
+    parser.add_argument("-ta", "--textanalysis", help="flag whether to use text analysis pipeline",
+                        action="store_true")
+    parser.add_argument("-dd", "--deepdetect", help="flag whether to use deepdetect API",
+                        action="store_true")
+    parser.add_argument("-ca", "--clarifai", help="flag whether to use clarifai API",
+                        action="store_true")
+    parser.add_argument("-dm", "--deepomatic", help="flag whether to use deepomatic API",
+                        action="store_true")
+    parser.add_argument("-lk", "--liketkit", help="flag whether to scrape liketkit links in the classification",
+                        action="store_true")
+    parser.add_argument("-pa", "--partitions", help="number of spark partitions",
+                        default=1)
+    parser.add_argument("-ma", "--materials", help="path to file with clothing materials/fabrics",
+                        default="./domain_data/material.csv")
+    parser.add_argument("-it", "--items", help="path to file with sub-categories of clothing items",
+                        default="./domain_data/items.csv")
+    parser.add_argument("-st", "--styles", help="path to file with clothing styles",
+                        default="./domain_data/styles.csv")
+    parser.add_argument("-br", "--brands", help="path to file with clothing brands",
+                        default="./domain_data/companies.csv")
+    parser.add_argument("-pat", "--patterns", help="path to file with clothing patterns",
+                        default="./domain_data/patterns.csv")
+    parser.add_argument("-itc", "--itemtopcategory", help="path to file with top-categories of items",
+                        default="./domain_data/item_top_category.csv")
+    parser.add_argument("-pbr", "--probasebrands", help="path to file with probase categories to match with brands",
+                        default="./domain_data/probase_brands.csv")
+    parser.add_argument("-pma", "--probasematerials",
+                        help="path to file with probase categories to match with materials/fabrics",
+                        default="./domain_data/probase_materials.csv")
+    parser.add_argument("-vec", "--vectors", help="path to file with word vectors",
+                        default="./vectors/vectors.vec")
+
+    args = parser.parse_args()
+    return args
+
+
 def sparkConf():
     "Setup spark configuration, change this to run on cluster"
     conf = pyspark.SparkConf()
-    return conf.setAppName("fashion_rec_data_setup").set("spark.hadoop.validateOutputSpecs", "false").set("spark.executor.heartbeatInterval", "20s").set("spark.rpc.message.maxSize", "512").set("spark.kryoserializer.buffer.max", "1024")
+    return conf.setAppName("fashion_rec_data_setup").set("spark.hadoop.validateOutputSpecs", "false").set(
+        "spark.executor.heartbeatInterval", "20s").set("spark.rpc.message.maxSize", "512").set(
+        "spark.kryoserializer.buffer.max", "1024")
     # return conf \
     #    .setMaster("local[8]") \
     #    .setAppName("fashion_rec_data_setup") \
     #    .set("spark.hadoop.validateOutputSpecs", "false")
 
 
-def parse_raw(sql, user):
+def parse_raw(sql, filePath):
     """ Read corpora with spark"""
     df = sql.read.csv(
-        "data/concat.csv", header=False, mode="DROPMALFORMED"
+        filePath, header=False, mode="DROPMALFORMED"
     )
     return df
 
 
-def map_post(row, information_extractor, index):
+def map_post(row, information_extractor, index, args):
     """Process post, semantic + syntactic similarity classification"""
-    print("processing post {}".format(index))
     if index % 10 == 0:
         print ("Processing post with index {0}".format(index))
-    text_clustering_res = text_clustering_LF(row, information_extractor)
-    liketkit_classes = liktekit_LF(row,information_extractor)
-    google_vision_classes = google_vision_LF(row, information_extractor)
-    deep_detect_classes = deep_detect_lookup(row, information_extractor)
-    clarifai_classes = clarifai_lookup(row, information_extractor)
-    deepomatic_classes = deepomatic_lookup(row, information_extractor)
+    text_clustering_res = {}
+    liketkit_classes = {}
+    google_vision_classes = {}
+    deep_detect_classes = {}
+    clarifai_classes = {}
+    deepomatic_classes = {}
+    if (args.textanalysis):
+        text_clustering_res = text_clustering_LF(row, information_extractor)
+    if (args.liketkit):
+        liketkit_classes = liktekit_LF(row, information_extractor)
+    if (args.google):
+        google_vision_classes = google_vision_LF(row, information_extractor)
+    if (args.deepdetect):
+        deep_detect_classes = deep_detect_lookup(row, information_extractor)
+    if (args.clarifai):
+        clarifai_classes = clarifai_lookup(row, information_extractor)
+    if (args.deepomatic):
+        deepomatic_classes = deepomatic_lookup(row, information_extractor)
     row = pyspark.sql.Row(id=row.id, hashtags=row.hashtags, links=row.links, text_clustering=text_clustering_res,
                           liketkit_classification=liketkit_classes,
                           google_vision_classification=google_vision_classes,
@@ -88,96 +209,62 @@ def map_post(row, information_extractor, index):
                           clarifai_classification=clarifai_classes,
                           deepomatic_classification=deepomatic_classes,
                           url=row.url)
-    #print("row construction done, returning {}".format(row))
     return row
+
 
 def google_vision_LF(row, information_extractor):
     """ Analyze image with Google vision API """
     item_candidates = information_extractor.google_vision_lookup(row.image_path)
-    #print("google mapping candidates: {}".format(item_candidates))
     items = information_extractor.map_candidates_to_ontology(item_candidates)
-    #materials = information_extractor.map_candidates_to_ontology(item_candidates,information_extractor.materials_lemmas.keys(),10)
-    #patterns = information_extractor.map_candidates_to_ontology(item_candidates,information_extractor.patterns,10)
-    #print("result: {}".format(items))
     google_vision_classes = {}
     google_vision_classes["items"] = dict(items)
-    #google_vision_classes["materials"] = dict(materials)
-    #google_vision_classes["patterns"] = dict(patterns)
     return google_vision_classes
+
 
 def deep_detect_lookup(row, information_extractor):
     """ Analyze image with deepdetect """
     items_and_fabrics = information_extractor.deep_detect_lookup(row.url)
-    #print("deep_detect mapping candidates: {}".format(items_and_fabrics))
     items = information_extractor.map_candidates_to_ontology(items_and_fabrics["items"])
-    #materials = information_extractor.map_candidates_to_ontology(items_and_fabrics["fabrics"],information_extractor.materials_lemmas.keys(),10)
-    #print("result: {}".format(items))
-    #print("result: {}".format(materials))
     deep_detect_classes = {}
     deep_detect_classes["items"] = dict(items)
-    #deep_detect_classes["materials"] = dict(materials)
     return deep_detect_classes
+
 
 def deepomatic_lookup(row, information_extractor):
     """ Analyze image with deepomatic """
     candidates = information_extractor.deepomatic_lookup(row.url)
-    #print("deepomatic mapping candidates: {}".format(candidates))
     items = information_extractor.map_candidates_to_ontology(candidates)
-    #materials = information_extractor.map_candidates_to_ontology(candidates,information_extractor.materials_lemmas.keys(),10)
-    #patterns = information_extractor.map_candidates_to_ontology(candidates,information_extractor.patterns,10)
-    #print("result: {}".format(items))
     deepomatic_classes = {}
     deepomatic_classes["items"] = dict(items)
-    #deepomatic_classes["materials"] = dict(materials)
-    #deepomatic_classes["patterns"] = dict(patterns)
     return deepomatic_classes
+
 
 def clarifai_lookup(row, information_extractor):
     """ Analyze image with clarifai"""
     candidates = information_extractor.clarifai_lookup(row.url)
-    #print("clarifai mapping candidates: {}".format(candidates))
     items = information_extractor.map_candidates_to_ontology(candidates)
-    #materials = information_extractor.map_candidates_to_ontology(candidates,information_extractor.materials_lemmas.keys(),10)
-    #patterns = information_extractor.map_candidates_to_ontology(candidates,information_extractor.patterns,10)
-    #print("result: {}".format(items))
     clarifai_classes = {}
     clarifai_classes["items"] = dict(items)
-    #clarifai_classes["materials"] = dict(materials)
-    #clarifai_classes["patterns"] = dict(patterns)
     return clarifai_classes
 
-def emoji_LF(row,information_extractor):
+
+def emoji_LF(row, information_extractor):
     """ Analyze image based on emojis"""
 
     emoji_classes = information_extractor.emoji_classification(row.emojis, 10)
-    #print("emoji classes: {}".format(emoji_classes))
     return dict(emoji_classes)
+
 
 def liktekit_LF(row, information_extractor):
     """ Analyze image based on liketkit link scraping"""
     text = []
     for link in row.links:
         text.extend(information_extractor.liketkit_classification(link))
-    #print("liketkit text: {}".format(text))
     liktekit_classes = {}
-    # liktekit_classes["styles"] = dict(sorted(list(set(
-    #     information_extractor.find_closest_semantic([], text, [], [], [], 10,
-    #                                                 information_extractor.styles_lemmas.keys()))),
-    #     reverse=True, key=lambda x: x[1]))
-    liktekit_classes["items"] = dict(information_extractor.find_closest_semantic_hieararchy(text, [], [], []))
-    # liktekit_classes["materials"] = dict(sorted(
-    #     list(set(information_extractor.find_closest_semantic([], text, [], [], [], 10,
-    #                                                          information_extractor.materials_lemmas.keys()))),
-    #     reverse=True, key=lambda x: x[1]))
-    # liktekit_classes["brands"] = dict(sorted(
-    #     list(set(information_extractor.find_closest_semantic([], text, [], [], [], 10,
-    #                                                          information_extractor.companies))),
-    #     reverse=True, key=lambda x: x[1]))
-    # liktekit_classes["patterns"] = dict(sorted(
-    #     list(set(information_extractor.find_closest_semantic([], text, [], [], [], 10,
-    #                                                          information_extractor.patterns))),
-    #     reverse=True, key=lambda x: x[1]))
+    liktekit_classes["items"] = dict(
+        information_extractor.find_closest_semantic_hierarchy(text, [], [], [], information_extractor.hieararchy))
     return liktekit_classes
+
 
 def text_clustering_LF(row, information_extractor):
     """ Analyze image based on semantic text clustering """
@@ -185,49 +272,47 @@ def text_clustering_LF(row, information_extractor):
     comments = row.comments
     hashtags = row.hashtags
     segmented_hashtags = row.segmented_hashtags
-    # hashtags.extend(row.segmented_hashtags)
+    userhandles = row.userhandles
+    id = row.id
     tags = row.tags
-    #styles1 = row.styles
-    #numStyles = 10 - len(styles1)
-    # styles = sorted(list(set(
-    #     information_extractor.find_closest_semantic(caption, comments, tags, hashtags, segmented_hashtags, numStyles,
-    #                                                 information_extractor.styles_lemmas.keys()))),
-    #     reverse=True, key=lambda x: x[1])
-    # styles.extend(styles1)
-    items = information_extractor.find_closest_semantic_hieararchy(caption, comments, tags, hashtags)
-    # materials = sorted(
-    #     list(set(information_extractor.find_closest_semantic(caption, comments, tags, hashtags, segmented_hashtags, 10,
-    #                                                          information_extractor.materials_lemmas.keys()))),
-    #     reverse=True, key=lambda x: x[1])
-    # brands = sorted(
-    #     list(set(information_extractor.find_closest_semantic(caption+row.userhandles, comments, tags, hashtags, segmented_hashtags, 10,
-    #                                                          information_extractor.companies))),
-    #     reverse=True, key=lambda x: x[1])
-    # patterns = sorted(
-    #     list(set(information_extractor.find_closest_semantic(caption, comments, tags, hashtags, segmented_hashtags, 10,
-    #                                                          information_extractor.patterns))),
-    #     reverse=True, key=lambda x: x[1])
-    # ranked_materials = sorted(re_rank_materials(information_extractor, materials), reverse=True, key=lambda x: x[1])
-    # ranked_brands = sorted(re_rank_brands(information_extractor, brands), reverse=True, key=lambda x: x[1])
-    # ranked_brands_2 = []
-    # items_temp = map(lambda x: x[0], items[:3])
-    # styles_temp = map(lambda x: x[0], styles[:3])
-    # materials_temp = map(lambda x: x[0], ranked_materials[:3])
-    # styles_temp.extend(materials_temp)
-    # extra_brands = sorted(information_extractor.find_closest_semantic(items_temp, styles_temp, [], [], [], 10,information_extractor.companies),reverse=True, key=lambda x: x[1])
-    # for brand in ranked_brands:
-    #     if brand[1] == 0:
-    #         newbrand = extra_brands.pop(0)
-    #         ranked_brands_2.append(newbrand)
-    #     else:
-    #         ranked_brands_2.append(brand)
+
+    top_items = information_extractor.find_closest_semantic_hierarchy(caption, comments, tags,
+                                                                      hashtags + segmented_hashtags,
+                                                                      information_extractor.top_category_items, id, 10)
+    styles = information_extractor.find_closest_semantic_hierarchy(caption, comments, tags,
+                                                                   hashtags + segmented_hashtags,
+                                                                   information_extractor.styles, id, 10)
+    sub_items = sorted(
+        list(
+            set(
+                information_extractor.find_closest_semantic(caption, comments, tags, hashtags, segmented_hashtags, 10,
+                                                            information_extractor.items_lemmas.keys(), id))
+        ), reverse=True, key=lambda x: x[1]
+    )
+    materials = sorted(
+        list(set(information_extractor.find_closest_semantic(caption, comments, tags, hashtags, segmented_hashtags, 10,
+                                                             information_extractor.materials_lemmas.keys(), id))),
+        reverse=True, key=lambda x: x[1])
+    brands = sorted(
+        list(set(information_extractor.find_closest_semantic(caption + userhandles, comments, tags, hashtags,
+                                                             segmented_hashtags, 10,
+                                                             information_extractor.companies, id))),
+        reverse=True, key=lambda x: x[1])
+    patterns = sorted(
+        list(set(information_extractor.find_closest_semantic(caption, comments, tags, hashtags, segmented_hashtags, 10,
+                                                             information_extractor.patterns, id))),
+        reverse=True, key=lambda x: x[1])
+    ranked_materials = sorted(re_rank_materials(information_extractor, materials), reverse=True, key=lambda x: x[1])
+    ranked_brands = sorted(re_rank_brands(information_extractor, brands), reverse=True, key=lambda x: x[1])
     text_clustering_LF = {}
-    # text_clustering_LF["brands"] = dict(ranked_brands_2)
-    # text_clustering_LF["patterns"] = dict(patterns)
-    # text_clustering_LF["materials"] = dict(materials)
-    text_clustering_LF["items"] = dict(items)
-    #text_clustering_LF["styles"] = dict(styles)
+    text_clustering_LF["brands"] = dict(ranked_brands)
+    text_clustering_LF["patterns"] = dict(patterns)
+    text_clustering_LF["materials"] = dict(ranked_materials)
+    text_clustering_LF["item-category"] = dict(top_items)
+    text_clustering_LF["item-sub-category"] = dict(sub_items)
+    text_clustering_LF["styles"] = dict(styles)
     return text_clustering_LF
+
 
 def re_rank_materials(information_extractor, materials):
     """ Re-rank materials based on probase lookup"""
@@ -277,7 +362,7 @@ def lookup_company_probase(information_extractor, query, num):
     return rank
 
 
-def premap_post(row):
+def premap_post(row, args):
     """Sloppy/Quick text normalization"""
     if row._c0 is not None:
         id = row._c0.encode('utf-8', 'ignore').decode("utf-8")
@@ -312,7 +397,6 @@ def premap_post(row):
                     if not w == "style" and not w == "styles":
                         styles.append((w, 100.0))
             segmented_hashtags.extend(seg)
-    #print("styles in hashtags: {}".format(styles))
     if styles > 8:
         styles = styles[0:8]
     links = []
@@ -332,48 +416,42 @@ def premap_post(row):
     caption = tknzr_strip_users.tokenize(caption)
     tags = tknzr_strip_users.tokenize(tags)
     img_name = url.rsplit('/', 1)[-1]
-    image_path = "/media/limmen/HDD/Dropbox/wordvec/ie/data/concat/" + img_name
+    image_path = args.imagepath + img_name
     return pyspark.sql.Row(id=id, text=text, hashtags=hashtags, links=links,
                            comments=comments, segmented_hashtags=segmented_hashtags,
-                           caption=caption, tags=tags, styles=styles, userhandles=userhandles, emojis=emojis, url=url, image_path = image_path)
+                           caption=caption, tags=tags, styles=styles, userhandles=userhandles, emojis=emojis, url=url,
+                           image_path=image_path)
 
 
-def analyze_user(user, information_extractor, sql):
+def analyze_user(information_extractor, sql, args):
     """ Analyzes a given user with semantic/syntactic similarities"""
-    df = parse_raw(sql, user)
+    df = parse_raw(sql, args.input)
     count = df.count()
     print("number of posts: {0}".format(count))
-    rdd = df.rdd.repartition(30)
-    rdd = rdd.map(lambda x: premap_post(x))
-    print("first map done: {0}".format(count))
-    rdd = rdd.repartition(30)
+    rdd = df.rdd.repartition(args.partitions)
+    rdd = rdd.map(lambda x: premap_post(x, args))
+    rdd = rdd.repartition(args.partitions)
     rdd = rdd.zipWithIndex()
-    rdd = rdd.repartition(30)
-    print("zip done: {0}".format(count))
-    rdd = rdd.repartition(30).map(lambda (x, index): map_post(x, information_extractor, index))
-    print("second map done: {0}".format(count))
-    rdd.toDF().toJSON().saveAsTextFile("data/rdd/test")
+    rdd = rdd.repartition(args.partitions)
+    rdd = rdd.map(lambda (x, index): map_post(x, information_extractor, index, args))
+    try:
+        rdd.toDF().toJSON().saveAsTextFile(args.output)
+    except:
+        rdd.saveAsTextFile(args.output)
 
 
 def main():
     """ Program entrypoint, orchestrates the pipeline"""
-    materials = read_gazetter("./domain_data/material.csv")
-    items = read_gazetter("./domain_data/items.csv")
-    styles = read_gazetter("./domain_data/general_style2.csv")
-    companies = read_gazetter("./domain_data/companies.csv")
-    probase_brands = read_gazetter("./domain_data/probase_brands.csv")
-    probase_materials = read_gazetter("./domain_data/probase_materials.csv")
-    brands_keywords_google_search = read_gazetter("./domain_data/brands_keywords_google_search.csv")
-    materials_keywords_google_search = read_gazetter("./domain_data/materials_keywords_google_search.csv")
-    colors = read_gazetter("./domain_data/colors.csv")
-    patterns = read_gazetter("./domain_data/patterns.csv")
-    hierarchy = read_gazetter("./domain_data/hierarchical/hieararchical.csv")
-    information_extractor = InformationExtractor("./vectors/vectors.vec", companies, styles, materials, items,
-                                                 brands_keywords_google_search, materials_keywords_google_search,
-                                                 probase_brands, probase_materials, colors, patterns,hierarchy)
+    args = parse_args()
+    tfidf = create_tf_idf(args.input)
+    information_extractor = InformationExtractor(args.vectors, read_gazetter(args.brands), read_gazetter(args.styles),
+                                                 read_gazetter(args.materials), read_gazetter(args.items),
+                                                 read_gazetter(args.probasebrands),
+                                                 read_gazetter(args.probasematerials), read_gazetter(args.patterns),
+                                                 read_gazetter(args.itemtopcategory), args.deepdetect, args.conf, tfidf)
     sc = pyspark.SparkContext(conf=sparkConf())
     sql = pyspark.SQLContext(sc)
-    analyze_user("test", information_extractor, sql)
+    analyze_user(information_extractor, sql, args)
 
 
 if __name__ == '__main__':

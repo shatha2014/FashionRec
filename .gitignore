@@ -41,3 +41,5 @@ target/
 */__pycache__/*
 */spark-warehouse/*
 **/spark-warehouse
+*.ipynb_checkpoints
+*.vec

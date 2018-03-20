@@ -1,0 +1,42 @@
+[
+  { "_id" : { "$oid" : "5a96cc6c1a14941d5af3b551" },
+    "fashionistausername" : "test",
+    "annotatorusername" : "kim",
+    "imageinfo" :
+    { "styles" : [ "Classic / Conservative / Timeless/ Traditional / Crisp -Style" ],
+      "fashionistausername" : "test",
+      "annotateddatajson" :
+      [
+        { "ItemSubCategory" : "heels", "ItemCategory" : "shoes", "FinalizeAnnotatedAttributes" :
+        {
+          "Pattern" : [ "plain" ],
+          "Brand" : [ "RalphLauren", "" ],
+          "Material" : [ "synthetic" ],
+          "otherdetails" : "",
+          "fastener" : [ "slip" ],
+          "Collection" : [],
+          "Heelheight" : [ "high" ],
+          "Heeltype" : [ "hiddnplatform" ],
+          "Occasion" : [ "party" ],
+          "Colour" : [ "black" ],
+          "Toe" : [] }
+        },
+        {
+          "ItemSubCategory" : "cocktail",
+          "ItemCategory" : "dresses",
+          "FinalizeAnnotatedAttributes" :
+          {
+            "Pattern" : [ "plain" ],
+            "Brand" : [ "RalphLauren", "" ],
+            "Material" : [ "silk" ],
+            "otherdetails" : "",
+            "Collection" : [ "spring-summer" ],
+            "Length" : [ "Knee-Length" ],
+            "important" : 1,
+            "Occasion" : [ "party" ],
+            "Collartype" : [ "peterpancollar" ],
+            "Colour" : [ "black" ] } } ],
+      "annotated" : true,
+      "imageid" : "1662599089224558375" },
+    "imageid" : "1662599089224558375" }
+]
