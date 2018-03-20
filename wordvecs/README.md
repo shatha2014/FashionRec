@@ -64,7 +64,7 @@ After evaluation, depending on how you configured the script, results are writte
 
 ## Intrinsic Evaluation
 
-![Intrinsic Evaluation, Comparison With Pre-trained Embeddings](./images/intrinsic_comparion_w_pretrained.png "Intrinsic Evaluation, Comparison With Pre-trained Embeddings")
+![Intrinsic Evaluation, Comparison With Pre-trained Embeddings](./images/intrinsic_comparison_w_pretrained.png "Intrinsic Evaluation, Comparison With Pre-trained Embeddings")
 
 ![Intrinsic Evaluation, Context Window Tuning](./images/intrinsic_comparison_contextwindow.png "Intrinsic Evaluation, Context Window Tuning")
 
