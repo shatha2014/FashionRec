@@ -121,7 +121,7 @@ python ie_eval.py \
 
 - `./domain_data` contains domain data and ontology-like data in plaintext format, it is used to classify the input text.
 - `./vectors/vector.vec` should contain word embeddings of your choice to perform the text clustering, pre-trained fashion embeddings can be downloaded from [here](https://www.dropbox.com/s/97f1y6ew2mvwhiv/clean_wiki.txt.tar.gz?dl=0).
-- `./conf/conf.json` configuration file, only necessary if you use all of the features in the analysis
+- `./conf/vetors.json` contains list of pre-trained vectors to perform extrinsic evaluatio on
 
 #### Options
 
