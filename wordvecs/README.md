@@ -76,13 +76,17 @@ After evaluation, depending on how you configured the script, results are writte
 
 ![PCA Projection and Visualization, words close to #budgetstyle](./images/word_plot_berlin.png "PCA Projection and Visualization, words close to #budgetstyle")
 
-### References 
+## Sample Instagram Fashion Vectors
+
+Get vectors trained on IG Fashion corpora with dimension 300, context window size 3 and the FastText algorithm [here](https://www.dropbox.com/s/tvie2f8jtxcu4ca/fasttext_fashion_dim300_c3_skipgram.vec.zip?dl=0).
+
+## References 
 
 If using any of the code in this repsitory in your work or research, please cite: [1](TODO)
 
 In this publication you can also find an evaluation of the system. 
 
-#### Title
+### Title
 
 [1] TODO, [*TODO*](link)
 

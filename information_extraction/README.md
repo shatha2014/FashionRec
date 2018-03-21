@@ -142,13 +142,13 @@ python ie_eval.py \
 | -testvectors --testvectors | conf file with list of vectors to evaluate                                    |
 | -lab --labels              | file location of labels                                                       |
 
-### References 
+## References 
 
 If using any of the code in this repsitory in your work or research, please cite: [1](TODO)
 
 In this publication you can also find an evaluation of the system. 
 
-#### Title
+### Title
 
 [1] TODO, [*TODO*](link)
 

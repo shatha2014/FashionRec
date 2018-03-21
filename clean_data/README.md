@@ -33,11 +33,11 @@ python  ig_json_clean.py --input data --format csv --output cleaned
 | -pa --partitions | [Number of Spark partitions [1]                                          |
 | -d --documentformat| "combine all features into a single text per post" [false]                  |
 
-### References 
+## References 
 
 If using any of the code in this repsitory in your work or research, please cite: [1](TODO) 
 
-#### Title
+### Title
 
 [1] TODO, [*TODO*](link)
 

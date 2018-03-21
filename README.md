@@ -16,11 +16,11 @@ This repository contains scripts and programs used to analyze textual data from 
 
 See individual README.md for each module
 
-### References 
+## References 
 
 If using any of the code in this repsitory in your work or research, please cite: [1](TODO)
 
-#### Title
+### Title
 
 [1] TODO, [*TODO*](link)
 
