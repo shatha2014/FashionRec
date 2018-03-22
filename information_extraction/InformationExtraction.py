@@ -155,7 +155,6 @@ class InformationExtractor(object):
         similarity = similarity*tfidf_score
         if edit_distance(tokenLemma, token2Lemma) == 0:
             similarity = similarity*10
-        similarity = similarity*tfidf_score
         return similarity
 
     def find_closest_syntactic(self, caption, comments, tags, hashtags, segmented_hashtags, num, topic, id):
@@ -230,6 +229,8 @@ class InformationExtractor(object):
             tfidf_score = tfidf[token.encode("utf-8")]
         tfidf_score = max(tfidf_score, 0.0001)
         similarity = similarity*tfidf_score
+        if edit_distance(tokenLemma, token2Lemma) == 0:
+            similarity = similarity*10
         return similarity
 
 

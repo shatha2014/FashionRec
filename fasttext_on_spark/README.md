@@ -77,8 +77,6 @@ The dataset were scraped from English wikipedia 2018-03-01 using the scripts pro
 
 Cite [1](#enriching-word-vectors-with-subword-information) if using the FastText algorithm for learning word representations.
 
-Cite [2](TODO) If using FastTextOnSpark for distributed training with FastText
-
 ### Enriching Word Vectors with Subword Information
 
 [1] P. Bojanowski\*, E. Grave\*, A. Joulin, T. Mikolov, [*Enriching Word Vectors with Subword Information*](https://arxiv.org/abs/1607.04606)
@@ -91,12 +89,13 @@ Cite [2](TODO) If using FastTextOnSpark for distributed training with FastText
   year={2016}
 }
 ```
-
-### FastTextOnSpark
+## References
 
 If using any of the code in this repsitory in your work or research, please cite: [2](TODO)
 
 In this publication you can also find an evaluation of the system.
+
+### FastTextOnSpark
 
 [2] TODO, [*TODO*](link)
 
