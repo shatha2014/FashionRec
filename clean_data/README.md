@@ -39,7 +39,7 @@ If using any of the code in this repsitory in your work or research, please cite
 
 ### Title
 
-[1] TODO, [*TODO*](link)
+[1] Paper awaiting acceptance, [*TODO*](link)
 
 ```
 @article{todo,

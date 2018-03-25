@@ -150,7 +150,7 @@ In this publication you can also find an evaluation of the system.
 
 ### Title
 
-[1] TODO, [*TODO*](link)
+[1] Paper awaiting acceptance [*TODO*](link)
 
 ```
 @article{todo,

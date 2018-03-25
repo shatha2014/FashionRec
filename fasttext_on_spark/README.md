@@ -97,7 +97,7 @@ In this publication you can also find an evaluation of the system.
 
 ### FastTextOnSpark
 
-[2] TODO, [*TODO*](link)
+[2] Thesis awaiting acceptance, [*TODO*](link)
 
 ```
 @article{joulin2016bag,

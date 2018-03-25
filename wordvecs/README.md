@@ -79,7 +79,13 @@ After evaluation, depending on how you configured the script, results are writte
 
 ## Sample Instagram Fashion Vectors
 
-Get vectors trained on IG Fashion corpora with dimension 300, context window size 3 and the FastText algorithm [here](https://www.dropbox.com/s/tvie2f8jtxcu4ca/fasttext_fashion_dim300_c3_skipgram.vec.zip?dl=0).
+Get the best performing embeddings trained on IG Fashion corpora through the links below:
+
+| Algorithm | Corpora   | Dimension | Context Window Size | Model     | Link                                                                                                            |
+| -----     | -----     |     ----- |               ----- | -----     | ---                                                                                                             |
+| FastText  | Instagram |       300 |                   3 | Skip-gram | [fasttext_ig_300_3](https://www.dropbox.com/s/tvie2f8jtxcu4ca/fasttext_fashion_dim300_c3_skipgram.vec.zip?dl=0) |
+| Word2vec  | Instagram |       300 |                  13 | CBOW      | [word2vec_ig_300_13](https://www.dropbox.com/s/zv82vnjh6v4aa3n/word2vec_fashion_dim300_c13_0.vec.zip?dl=0)      |
+| Glove     | Instagram |       300 |                  12 | -         | [glove_ig_300_12](https://www.dropbox.com/s/ervmtrrx24zqkxf/glove_fashion_dim300_c12_-.vec.zip?dl=0)            |
 
 ## References 
 

@@ -142,10 +142,12 @@ class InformationExtractor(object):
             token = token.decode("utf-8", "ignore")
         tokenLemma = self.wordnet_lemmatizer.lemmatize(token)
         if tokenLemma in self.wordvec_model.wv.vocab and token2Lemma in self.wordvec_model.wv.vocab:
+            if edit_distance(tokenLemma, token2Lemma) == 0:
+                factor = factor*10
             similarity = factor*math.pow(float(self.wordvec_model.wv.similarity(tokenLemma, token2Lemma)), 2)
         else:
-            dist = edit_distance(token, token2)
-            similarity = float(1)/float(1 + math.pow(dist, 5))
+            dist = factor*edit_distance(tokenLemma, token2Lemma)
+            similarity = float(1)/float(1 + math.pow(dist, 2))
         tfidf_score = 0.0
         if token in tfidf:
             tfidf_score = tfidf[token]
@@ -153,8 +155,6 @@ class InformationExtractor(object):
             tfidf_score = tfidf[token.encode("utf-8")]
         tfidf_score = max(tfidf_score, 0.0001)
         similarity = similarity*tfidf_score
-        if edit_distance(tokenLemma, token2Lemma) == 0:
-            similarity = similarity*10
         return similarity
 
     def find_closest_syntactic(self, caption, comments, tags, hashtags, segmented_hashtags, num, topic, id):
@@ -220,8 +220,10 @@ class InformationExtractor(object):
         """ Returns similarity between two tokens using edit distance and TFIDF weighting"""
         tokenLemma = self.wordnet_lemmatizer.lemmatize(token)
         similarity = 0.0
-        dist = factor*edit_distance(tokenLemma, token2Lemma)
-        similarity = float(1)/float(1 + math.pow(dist, 2))
+        if edit_distance(tokenLemma, token2Lemma) == 0:
+            factor = factor*10
+        dist = edit_distance(tokenLemma, token2Lemma)
+        similarity = factor*(float(1)/float(1 + dist))
         tfidf_score = 0.0
         if token in tfidf:
             tfidf_score = tfidf[token]
@@ -229,8 +231,6 @@ class InformationExtractor(object):
             tfidf_score = tfidf[token.encode("utf-8")]
         tfidf_score = max(tfidf_score, 0.0001)
         similarity = similarity*tfidf_score
-        if edit_distance(tokenLemma, token2Lemma) == 0:
-            similarity = similarity*10
         return similarity
 
 
