@@ -1,3 +1,17 @@
+# Author: Kim Hammar <kimham@kth.se> KTH 2018
+#
+# Original paper for the CNN model:
+# @inproceedings{kimyoon_cnn,
+#                author    = {Yoon Kim},
+# title     = {Convolutional Neural Networks for Sentence Classification},
+# booktitle = {{EMNLP}},
+# pages     = {1746--1751},
+# publisher = {{ACL}},
+# year      = 2014
+# }
+#
+# Tensorflow implementation inspiration from Denny Britz:
+# https://github.com/dennybritz/cnn-text-classification-tf
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np

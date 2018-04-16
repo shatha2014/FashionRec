@@ -1,4 +1,6 @@
 # coding=utf-8
+# Author: Kim Hammar <kimham@kth.se> KTH 2018
+
 import gensim
 import json
 import urllib
@@ -12,8 +14,6 @@ import re
 from collections import Counter
 import wikipedia
 from googlesearch.googlesearch import GoogleSearch
-from random import randint
-import urllib2
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from deepomatic import Client

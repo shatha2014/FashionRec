@@ -1,4 +1,5 @@
-from nltk import pos_tag
+# Author: Kim Hammar <kimham@kth.se> KTH 2018
+
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import TweetTokenizer

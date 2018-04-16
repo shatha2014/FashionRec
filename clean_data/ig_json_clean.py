@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Author: Kim Hammar <kimham@kth.se> KTH 2018
 
 """
 Python script for parsing IG-users in JSON formats with spark and

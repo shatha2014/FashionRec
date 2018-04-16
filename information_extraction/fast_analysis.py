@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
+# Author: Kim Hammar <kimham@kth.se> KTH 2018
+
 from InformationExtraction import InformationExtractor
 import os
 import re

@@ -1,3 +1,5 @@
+# Author: Kim Hammar <kimham@kth.se> KTH 2018
+
 import gensim
 import numpy as np
 import tensorflow as tf

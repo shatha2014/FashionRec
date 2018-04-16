@@ -1,3 +1,5 @@
+# Author: Kim Hammar <kimham@kth.se> KTH 2018
+
 import json
 from InformationExtraction import InformationExtractor
 from wordsegment import load, segment

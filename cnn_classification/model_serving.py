@@ -1,11 +1,7 @@
-
-import logging
-import random
+# Author: Kim Hammar <kimham@kth.se> KTH 2018
 import time
-from google.protobuf import text_format
 from flask import Flask, jsonify, request
 import numpy as np
-from scipy.misc import imread, imresize
 import tensorflow as tf
 
 app = Flask(__name__)
