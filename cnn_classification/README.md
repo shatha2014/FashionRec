@@ -14,6 +14,8 @@ CNN for multi-class multi-label text classification
 
 ### Model
 
+![CNN Architecture](./images/cnn2.png "CNN Architecture")
+
 ![model](./images/cnn.png "Model")
 
 ### Usage
@@ -159,7 +161,7 @@ curl -H "Content-Type: application/json" -X POST -d '{"text":"coat love the coat
 
 All the CNN networks in this repository are variants of Kim Yoon's CNN in [1]
 
-### Convolutional Neural Networks for Sentence Classification 
+### Convolutional Neural Networks for Sentence Classification
 
 [1](#Convolutional Neural Networks for Sentence Classification)
 
@@ -173,7 +175,7 @@ All the CNN networks in this repository are variants of Kim Yoon's CNN in [1]
 }
 ```
 
-## References 
+## References
 
 If using any of the code in this repsitory in your work or research, please cite: [2](TODO)
 
@@ -197,4 +199,3 @@ BSD 2-clause, see [LICENSE](./LICENSE)
 ## Author
 
 Kim Hammar, [kimham@kth.se](mailto:kimham@kth.se)
-
