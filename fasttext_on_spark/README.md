@@ -53,6 +53,10 @@ $SPARK_HOME/bin/spark-submit \
 | --average        | [Boolean] If true paritioned embeddings are averaged instead of summed        |
 | --verbose        | [Boolean] If true logging is verbose [false]                                  |
 
+## Architecture
+
+![FastTextOnSpark Architecture](./images/architecture.png "FastTextOnSpark Architecture")
+
 ## Benchmarks
 
 See results in `./eval/benchmarks.csv`
