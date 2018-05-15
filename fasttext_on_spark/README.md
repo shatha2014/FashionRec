@@ -104,7 +104,7 @@ In this publication you can also find an evaluation of the system.
 [2] Thesis awaiting acceptance, [*TODO*](link)
 
 ```
-@article{joulin2016bag,
+@article{todo,
   title={TODO},
   author={TODO},
   journal={TODO},
