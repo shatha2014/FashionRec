@@ -33,20 +33,23 @@ python  ig_json_clean.py --input data --format csv --output cleaned
 | -pa --partitions | [Number of Spark partitions [1]                                          |
 | -d --documentformat| "combine all features into a single text per post" [false]                  |
 
-## References 
+## References
 
-If using any of the code in this repsitory in your work or research, please cite: [1](TODO) 
+If using any of the code in this repsitory in your work or research, please cite: [1](TODO)
 
-### Title
+### Deep Text Mining of Instagram Data Without Strong Supervision
 
-[1] Paper awaiting acceptance, [*TODO*](link)
+[1] K.Hammar, S.Jaradat, N.Dokoohaki, M.Matskin [*TODO*](link)
 
 ```
-@article{todo,
-  title={TODO},
-  author={TODO},
-  journal={TODO},
-  year={TODO}
+@Unpublished{hammar1,
+  title={Deep Text Mining of Instagram Data Without Strong Supervision},
+  author={Hammar, Kim and Jaradat, Shatha and Dokoohaki, Nima and Matskin, Mihhail},
+  booktitle = {Proceedings of the International Conference on Web Intelligence},
+  series = {WI '18},
+  year = {2018},
+  location = {Santiago, Chile},
+  note = {unpublished}
 }
 ```
 

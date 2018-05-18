@@ -47,7 +47,7 @@ python pre_process_corpus.py --input "data/corpora/1/1.txt" "data/corpora/2/2.tx
 Contains functions for training and evaluating word vectors such as:
 
 - Vector training with Word2Vec, Glove, FastText
-- Retrofitting trained vectors to some ontology 
+- Retrofitting trained vectors to some ontology
 - Evaluating vectors on the word similarity task, word analogy task and word does not match task
 - Saves results of evaluation to .csv file
 
@@ -87,22 +87,25 @@ Get the best performing embeddings trained on IG Fashion corpora through the lin
 | Word2vec  | Instagram |       300 |                  13 | CBOW      | [word2vec_ig_300_13](https://www.dropbox.com/s/zv82vnjh6v4aa3n/word2vec_fashion_dim300_c13_0.vec.zip?dl=0)      |
 | Glove     | Instagram |       300 |                  12 | -         | [glove_ig_300_12](https://www.dropbox.com/s/ervmtrrx24zqkxf/glove_fashion_dim300_c12_-.vec.zip?dl=0)            |
 
-## References 
+## References
 
 If using any of the code in this repsitory in your work or research, please cite: [1](TODO)
 
-In this publication you can also find an evaluation of the system. 
+In this publication you can also find an evaluation of the system.
 
-### Title
+### Deep Text Mining of Instagram Data Without Strong Supervision
 
-[1] TODO, [*TODO*](link)
+[1] K.Hammar, S.Jaradat, N.Dokoohaki, M.Matskin [*TODO*](link)
 
 ```
-@article{todo,
-  title={TODO},
-  author={TODO},
-  journal={TODO},
-  year={TODO}
+@Unpublished{hammar1,
+  title={Deep Text Mining of Instagram Data Without Strong Supervision},
+  author={Hammar, Kim and Jaradat, Shatha and Dokoohaki, Nima and Matskin, Mihhail},
+  booktitle = {Proceedings of the International Conference on Web Intelligence},
+  series = {WI '18},
+  year = {2018},
+  location = {Santiago, Chile},
+  note = {unpublished}
 }
 ```
 

@@ -12,25 +12,28 @@ This repository contains scripts and programs used to analyze textual data from 
 - `./information_extraction` contains scripts for unsupervised information extraction using semantic/syntactic clustering of text to match it to an ontology/domain data as well as using several external APIs as sources of distant supervision. Also contains scripts for evaluation.
 - `./wordvecs` contains scripts training and evaluating word embeddings, as well as normalizing text corpora to be used for training word embeddings.
 - `./cnn_classification` contains scripts for training a weakly supervised CNN text classifier and model serving.
- 
+
 ### Usage
 
 See individual README.md for each module
 
-## References 
+## References
 
 If using any of the code in this repsitory in your work or research, please cite: [1](TODO)
 
-### Title
+### Deep Text Mining of Instagram Data Without Strong Supervision
 
-[1] Paper awaiting acceptance, [*TODO*](link)
+[1] K.Hammar, S.Jaradat, N.Dokoohaki, M.Matskin [*TODO*](link)
 
 ```
-@article{todo,
-  title={TODO},
-  author={TODO},
-  journal={TODO},
-  year={TODO}
+@Unpublished{hammar1,
+  title={Deep Text Mining of Instagram Data Without Strong Supervision},
+  author={Hammar, Kim and Jaradat, Shatha and Dokoohaki, Nima and Matskin, Mihhail},
+  booktitle = {Proceedings of the International Conference on Web Intelligence},
+  series = {WI '18},
+  year = {2018},
+  location = {Santiago, Chile},
+  note = {unpublished}
 }
 ```
 
@@ -45,4 +48,3 @@ Kim Hammar, [kimham@kth.se](mailto:kimham@kth.se)
 Shatha Jaradat, [shatha@kth.se](mailto:shatha@kth.se)
 
 Nima Dokoohaki, [nimad@kth.se](mailto:nimad@kth.se)
-

@@ -101,14 +101,15 @@ In this publication you can also find an evaluation of the system.
 
 ### FastTextOnSpark
 
-[2] Thesis awaiting acceptance, [*TODO*](link)
+[2] K.Hammar, [*TODO*](link)
 
 ```
-@article{todo,
-  title={TODO},
-  author={TODO},
-  journal={TODO},
-  year={TODO}
+@Unpublished{hammar2,
+  author = 	 {Kim Hammar},
+  title = 	 {Deep Text Mining of Instagram Data Using Word Embeddings and Weak Supervision},
+  institution = {KTH, School of Information and Communication Technology (ICT)},
+   school = {KTH, School of Information and Communication Technology (ICT)},
+  note = 	 {in press}
 }
 ```
 

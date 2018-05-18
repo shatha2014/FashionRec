@@ -179,16 +179,19 @@ All the CNN networks in this repository are variants of Kim Yoon's CNN in [1]
 
 If using any of the code in this repsitory in your work or research, please cite: [2](TODO)
 
-### Title
+### Deep Text Mining of Instagram Data Without Strong Supervision
 
-[2] TODO, [*TODO*](link)
+[2] K.Hammar, S.Jaradat, N.Dokoohaki, M.Matskin [*TODO*](link)
 
 ```
-@article{todo,
-  title={TODO},
-  author={TODO},
-  journal={TODO},
-  year={TODO}
+@Unpublished{hammar1,
+  title={Deep Text Mining of Instagram Data Without Strong Supervision},
+  author={Hammar, Kim and Jaradat, Shatha and Dokoohaki, Nima and Matskin, Mihhail},
+  booktitle = {Proceedings of the International Conference on Web Intelligence},
+  series = {WI '18},
+  year = {2018},
+  location = {Santiago, Chile},
+  note = {unpublished}
 }
 ```
 

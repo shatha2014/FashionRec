@@ -4,7 +4,7 @@
 
 - `fast_analysis.py` is a script for analyzing users, uses Preprocessor.py and InformationExtraction.py, uses Spark for distribution, uses a plethora of external APIs as distant supevision, and uses local semantic clustering of text
 
-- `ie_eval.py` is a script for evaluating the information extraction system against ground truth labels. The evaluation supports comparison with baselines as well as extrinsic evaluation of word embeddings.  
+- `ie_eval.py` is a script for evaluating the information extraction system against ground truth labels. The evaluation supports comparison with baselines as well as extrinsic evaluation of word embeddings.
 
 ## Pipeline for Information Extraction
 
@@ -52,7 +52,7 @@ $SPARK_HOME/bin/spark-submit \
 /media/limmen/HDD/workspace/fashion_rec/FashionRec/information_extraction/fast_analysis.py --input data/sample_user.csv --output output/sample_user --conf ./conf/conf.json --textanalysis
 ```
 
-See also 
+See also
 ```bash
 ./start_cluster
 ./run.sh
@@ -88,7 +88,7 @@ See also
 | -itc --itemtopcategory | path to file with top-categories of items                                     |
 | -pbr --probasebrands   | path to file with probase categories to match with brands                     |
 | -pma --probasematerials| path to file with probase categories to match with materials/fabrics          |
-| -vec --vectors         | path to file with word vectors                                                | 
+| -vec --vectors         | path to file with word vectors                                                |
 
 ## `ie_eval.py`
 
@@ -138,26 +138,29 @@ python ie_eval.py \
 | -itc --itemtopcategory     | path to file with top-categories of items                                     |
 | -pbr --probasebrands       | path to file with probase categories to match with brands                     |
 | -pma --probasematerials    | path to file with probase categories to match with materials/fabrics          |
-| -vec --vectors             | path to file with word vectors                                                | 
+| -vec --vectors             | path to file with word vectors                                                |
 | -testvectors --testvectors | conf file with list of vectors to evaluate                                    |
 | -lab --labels              | file location of labels                                                       |
 
-## References 
+## References
 
 If using any of the code in this repsitory in your work or research, please cite: [1](TODO)
 
-In this publication you can also find an evaluation of the system. 
+In this publication you can also find an evaluation of the system.
 
-### Title
+### Deep Text Mining of Instagram Data Without Strong Supervision
 
-[1] Paper awaiting acceptance [*TODO*](link)
+[1] K.Hammar, S.Jaradat, N.Dokoohaki, M.Matskin [*TODO*](link)
 
 ```
-@article{todo,
-  title={TODO},
-  author={TODO},
-  journal={TODO},
-  year={TODO}
+@Unpublished{hammar1,
+  title={Deep Text Mining of Instagram Data Without Strong Supervision},
+  author={Hammar, Kim and Jaradat, Shatha and Dokoohaki, Nima and Matskin, Mihhail},
+  booktitle = {Proceedings of the International Conference on Web Intelligence},
+  series = {WI '18},
+  year = {2018},
+  location = {Santiago, Chile},
+  note = {unpublished}
 }
 ```
 
