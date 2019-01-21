@@ -26,15 +26,18 @@ If using any of the code in this repsitory in your work or research, please cite
 [1] K.Hammar, S.Jaradat, N.Dokoohaki, M.Matskin [*TODO*](link)
 
 ```
-@Unpublished{hammar1,
-  title={Deep Text Mining of Instagram Data Without Strong Supervision},
-  author={Hammar, Kim and Jaradat, Shatha and Dokoohaki, Nima and Matskin, Mihhail},
-  booktitle = {Proceedings of the International Conference on Web Intelligence},
-  series = {WI '18},
-  year = {2018},
-  location = {Santiago, Chile},
-  note = {unpublished}
-}
+@INPROCEEDINGS{8609589,
+author={K. Hammar and S. Jaradat and N. Dokoohaki and M. Matskin},
+booktitle={2018 IEEE/WIC/ACM International Conference on Web Intelligence (WI)},
+title={Deep Text Mining of Instagram Data without Strong Supervision},
+year={2018},
+volume={},
+number={},
+pages={158-165},
+keywords={Twitter;Ontologies;Task analysis;Clothing;Text mining;Information Extraction;Instagram;Weak Supervision;Word Embeddings},
+doi={10.1109/WI.2018.00-94},
+ISSN={},
+month={Dec},}
 ```
 
 ## License
